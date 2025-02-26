@@ -1,0 +1,6 @@
+{
+  "name":"Paulo Henrique",
+  "email":"paulo@godmail.com",
+  "password":"123",
+  "type":"student"
+}

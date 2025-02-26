@@ -38,22 +38,6 @@ app.get("/teachers", async (req, res) => {
   }
 });
 
-app.get("/teachers", async (req, res) => {
-  try {
-    const teachers = await TeachersModel.findAll({
-      include: {
-        model: UserModel,
-        attributes: ["id", "name", "email", "type"],
-      },
-    });
-
-    res.status(200).json(teachers);
-  } catch (error) {
-    console.error("Error fetching teachers:", error);
-    res.status(500).send("Error fetching teachers");
-  }
-});
-
 app.get("/class", async (req, res) => {
   const clas = await ClassModel.findAll();
   res.send(clas);

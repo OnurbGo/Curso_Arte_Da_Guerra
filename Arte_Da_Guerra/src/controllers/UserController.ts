@@ -13,3 +13,10 @@ export const getUserById = async (
   const users = await UserModel.findByPk(req.params.id);
   return res.json(users);
 };
+
+export const createUser = async (req: Request, res: Response) => {
+  const { name, email, password, type } = req.body;
+
+  const user = await UserModel.create({ name, email, password, type });
+  res.status(201).json(user);
+};
