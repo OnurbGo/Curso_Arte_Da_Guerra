@@ -2,6 +2,7 @@ import express from "express";
 import sequelize from "./config/database";
 import { error } from "console";
 import UserModel from "./models/UserModel";
+import UserRoutes from "./routes/UserRouter";
 import TeachersModel from "./models/TeachersModel";
 import ClassModel from "./models/ClassModel";
 import LessonModel from "./models/LessonModel";
@@ -15,10 +16,12 @@ app.get("/", (req, res) => {
   res.send("Hello World !");
 });
 
-app.get("/users", async (req, res) => {
-  const users = await UserModel.findAll();
-  res.send(users);
-});
+app.use(UserRoutes);
+//app.use(TeachersRoutes);
+//app.use(ClassRoutes);
+//app.use(LessonRoutes);
+//app.use(InscriptionRoutes);
+//app.use(PaymentRoutes);
 
 app.get("/teachers", async (req, res) => {
   try {
