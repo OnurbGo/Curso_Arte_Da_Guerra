@@ -44,6 +44,8 @@ InscriptionModel.init(
   }
 );
 
+
+//colocar um as para definir o nome (as: "nome")
 InscriptionModel.belongsTo(UserModel, { foreignKey: "user_id" });
 InscriptionModel.belongsTo(ClassModel, { foreignKey: "class_id" });
 

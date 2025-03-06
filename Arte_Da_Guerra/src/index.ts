@@ -8,9 +8,10 @@ import ClassModel from "./models/ClassModel";
 import LessonModel from "./models/LessonModel";
 import PaymentModel from "./models/PaymentModel";
 import InscriptionModel from "./models/InscriptionModel";
+import MethodPaymentModel from "./models/MethodPaymentModel";
 
 const app = express();
-const port = 3010;
+const port = 3000;
 
 app.get("/", (req, res) => {
   res.send("Hello World !");
@@ -56,6 +57,11 @@ app.get("/inscription", async (req, res) => {
 
 app.get("/payment", async (req, res) => {
   const payment = await PaymentModel.findAll();
+  res.send(payment);
+});
+
+app.get("/methodpayment", async (req, res) => {
+  const payment = await MethodPaymentModel.findAll();
   res.send(payment);
 });
 
