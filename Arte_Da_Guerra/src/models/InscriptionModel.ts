@@ -3,7 +3,11 @@ import sequelize from "../config/database";
 import UserModel from "./UserModel";
 import ClassModel from "./ClassModel";
 
-class InscriptionModel extends Model {}
+class InscriptionModel extends Model {
+  user_id: number | undefined;
+  inscription_date: Date | undefined;
+  status: Enumerator | undefined;
+}
 
 InscriptionModel.init(
   {
@@ -43,7 +47,6 @@ InscriptionModel.init(
     tableName: "Inscription",
   }
 );
-
 
 //colocar um as para definir o nome (as: "nome")
 InscriptionModel.belongsTo(UserModel, { foreignKey: "user_id" });

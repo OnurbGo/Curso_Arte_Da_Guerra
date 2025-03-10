@@ -16,14 +16,34 @@ export const getLessonById = async (
 
 export const createLesson = async (req: Request, res: Response) => {
   try {
-    const { name } = req.body;
+    const { class_id, title, description, video_url, order } = req.body;
 
-    if (!name || name === "") {
-      return res.status(400).json({ error: "Name is Required" });
+    if (!class_id || class_id === "") {
+      return res.status(400).json({ error: "Value is required" });
+    }
+
+    if (!title || title === "") {
+      return res.status(400).json({ error: "Value is required" });
+    }
+
+    if (!description || description === "") {
+      return res.status(400).json({ error: "Description is required" });
+    }
+
+    if (!video_url || video_url === "") {
+      return res.status(400).json({ error: "Video_url is required" });
+    }
+
+    if (!order || order === "") {
+      return res.status(400).json({ error: "Video_url is required" });
     }
 
     const lesson = await LessonModel.create({
-      name,
+      class_id,
+      title,
+      description,
+      video_url,
+      order,
     });
     res.status(201).json(lesson);
   } catch (error) {
@@ -36,7 +56,11 @@ export const updateLesson = async (
   res: Response
 ) => {
   try {
-    const { title, description, video_url, order } = req.body;
+    const { class_id, title, description, video_url, order } = req.body;
+    if (!class_id || class_id === "") {
+      return res.status(400).json({ error: "Value is required" });
+    }
+
     if (!title || title === "") {
       return res.status(400).json({ error: "Value is required" });
     }
@@ -58,6 +82,7 @@ export const updateLesson = async (
       return res.status(404).json({ error: "Lesson not found" });
     }
 
+    lesson.class_id = class_id;
     lesson.title = title;
     lesson.description = description;
     lesson.video_url = video_url;

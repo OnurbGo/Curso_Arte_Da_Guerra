@@ -16,14 +16,24 @@ export const getInscriptionById = async (
 
 export const createInscription = async (req: Request, res: Response) => {
   try {
-    const { name } = req.body;
+    const { user_id, inscription_date, status } = req.body;
 
-    if (!name || name === "") {
-      return res.status(400).json({ error: "Name is Required" });
+    if (!user_id || user_id === "") {
+      return res.status(400).json({ error: "User is Required" });
+    }
+
+    if (!inscription_date || inscription_date === "") {
+      return res.status(400).json({ error: "Inscription_date is Required" });
+    }
+
+    if (!status || status === "") {
+      return res.status(400).json({ error: "Status is Required" });
     }
 
     const inscription = await InscriptionModel.create({
-      name,
+      user_id,
+      inscription_date,
+      status,
     });
     res.status(201).json(inscription);
   } catch (error) {
@@ -36,7 +46,11 @@ export const updateInscription = async (
   res: Response
 ) => {
   try {
-    const { inscription_date, status } = req.body;
+    const { user_id, inscription_date, status } = req.body;
+
+    if (!user_id || user_id === "") {
+      return res.status(400).json({ error: "User_id is required" });
+    }
 
     if (!inscription_date || inscription_date === "") {
       return res.status(400).json({ error: "Inscriptione_date is required" });
@@ -51,6 +65,7 @@ export const updateInscription = async (
       return res.status(404).json({ error: "Inscription not found" });
     }
 
+    inscription.user_id = user_id;
     inscription.inscription_date = inscription_date;
     inscription.status = status;
 

@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 import ClassModel from "./ClassModel";
 
 class LessonModel extends Model {
+  class_id: number | undefined;
   title: string | undefined;
   description: string | undefined;
   video_url: string | undefined;

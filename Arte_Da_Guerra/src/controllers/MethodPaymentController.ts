@@ -36,8 +36,8 @@ export const updateMethodPayment = async (
   res: Response
 ) => {
   try {
-    const { title, description, price, creation_date } = req.body;
-    if (!title || title === "") {
+    const { name } = req.body;
+    if (!name || name === "") {
       return res.status(400).json({ error: "Title is required" });
     }
 
@@ -46,10 +46,7 @@ export const updateMethodPayment = async (
       return res.status(404).json({ error: "MethodPayment not found" });
     }
 
-    methodPayment.title = title;
-    methodPayment.description = description;
-    methodPayment.price = price;
-    methodPayment.creation_date = creation_date;
+    methodPayment.name = name;
 
     await methodPayment.save();
     res.status(201).json(methodPayment);

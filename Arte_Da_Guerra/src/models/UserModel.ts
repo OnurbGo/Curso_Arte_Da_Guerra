@@ -2,12 +2,11 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 
 class UserModel extends Model {
-  id: number | undefined;
   name: string | undefined;
   email: string | undefined;
   password: string | undefined;
-  type: boolean | undefined;
-  //registration_date:date |undefined;
+  type: Enumerator | undefined;
+  registration_date: Date | undefined;
 }
 
 UserModel.init(

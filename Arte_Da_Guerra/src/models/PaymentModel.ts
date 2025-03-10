@@ -4,7 +4,14 @@ import UserModel from "./UserModel";
 import ClassModel from "./ClassModel";
 import MethodPaymentModel from "./MethodPaymentModel";
 
-class PaymentModel extends Model {}
+class PaymentModel extends Model {
+  user_id: number | undefined;
+  methodpayment_id: number | undefined;
+  class_id: number | undefined;
+  value: number | undefined;
+  payment_date: Date | undefined;
+  status: Enumerator | undefined;
+}
 
 PaymentModel.init(
   {

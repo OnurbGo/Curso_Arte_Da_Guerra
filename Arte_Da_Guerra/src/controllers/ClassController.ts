@@ -16,14 +16,34 @@ export const getClassById = async (
 
 export const createClass = async (req: Request, res: Response) => {
   try {
-    const { name } = req.body;
+    const { master_id, title, description, price, creation_date } = req.body;
 
-    if (!name || name === "") {
-      return res.status(400).json({ error: "Name is Required" });
+    if (!master_id || master_id === "") {
+      return res.status(400).json({ error: "Title is required" });
+    }
+
+    if (!title || title === "") {
+      return res.status(400).json({ error: "Title is required" });
+    }
+
+    if (!description || description === "") {
+      return res.status(400).json({ error: "Description is required" });
+    }
+
+    if (!price || price === "") {
+      return res.status(400).json({ error: "Price is required" });
+    }
+
+    if (!creation_date || creation_date === "") {
+      return res.status(400).json({ error: "Creation_date is required" });
     }
 
     const Class = await ClassModel.create({
-      name,
+      master_id,
+      title,
+      description,
+      price,
+      creation_date,
     });
     res.status(201).json(Class);
   } catch (error) {
@@ -36,7 +56,11 @@ export const updateClass = async (
   res: Response
 ) => {
   try {
-    const { title, description, price, creation_date } = req.body;
+    const { master_id, title, description, price, creation_date } = req.body;
+    if (!master_id || master_id === "") {
+      return res.status(400).json({ error: "Title is required" });
+    }
+
     if (!title || title === "") {
       return res.status(400).json({ error: "Title is required" });
     }

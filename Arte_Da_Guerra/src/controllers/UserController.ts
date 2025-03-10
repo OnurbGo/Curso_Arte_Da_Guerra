@@ -52,7 +52,7 @@ export const updateUser = async (
   res: Response
 ) => {
   try {
-    const { name, email, password, type } = req.body;
+    const { name, email, password, type, registration_date } = req.body;
     if (!name || name === "") {
       return res.status(400).json({ error: "Name is required" });
     }
@@ -69,6 +69,10 @@ export const updateUser = async (
       return res.status(400).json({ error: "Type is required" });
     }
 
+    if (!registration_date || registration_date === "") {
+      return res.status(400).json({ error: "Registration_date is required" });
+    }
+
     const user = await UserModel.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -78,6 +82,7 @@ export const updateUser = async (
     user.email = email;
     user.password = password;
     user.type = type;
+    user.registration_date = registration_date;
 
     await user.save();
     res.status(201).json(user);

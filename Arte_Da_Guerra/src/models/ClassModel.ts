@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 import TeachersModel from "./TeachersModel";
 
 class ClassModel extends Model {
+  master_id: number | undefined;
   title: string | undefined;
   description: string | undefined;
   price: number | undefined;

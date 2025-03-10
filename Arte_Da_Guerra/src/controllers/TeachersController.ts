@@ -16,30 +16,24 @@ export const getTeachersById = async (
 
 export const createTeachers = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, type, registration_date } = req.body;
+    const { user_id, biography, expertise } = req.body;
 
-    if (!name || name === "") {
-      return res.status(400).json({ error: "Name is Required" });
+    if (!user_id || user_id === "") {
+      return res.status(400).json({ error: "Biography is required" });
     }
 
-    if (!email || email === "") {
-      return res.status(400).json({ error: "Email is Required" });
+    if (!biography || biography === "") {
+      return res.status(400).json({ error: "Biography is required" });
     }
 
-    if (!password || password === "") {
-      return res.status(400).json({ error: "Password is Required" });
-    }
-
-    if (!type || type === "") {
-      return res.status(400).json({ error: "Type is Required" });
+    if (!expertise || expertise === "") {
+      return res.status(400).json({ error: "Expertise is required" });
     }
 
     const teachers = await TeachersModel.create({
-      name,
-      email,
-      password,
-      type,
-      registration_date,
+      user_id,
+      biography,
+      expertise,
     });
     res.status(201).json(teachers);
   } catch (error) {
@@ -52,7 +46,11 @@ export const updateTeachers = async (
   res: Response
 ) => {
   try {
-    const { biography, expertise } = req.body;
+    const { user_id, biography, expertise } = req.body;
+    if (!user_id || user_id === "") {
+      return res.status(400).json({ error: "Biography is required" });
+    }
+
     if (!biography || biography === "") {
       return res.status(400).json({ error: "Biography is required" });
     }
@@ -66,6 +64,7 @@ export const updateTeachers = async (
       return res.status(404).json({ error: "Teacher not found" });
     }
 
+    teachers.user_id = user_id;
     teachers.biography = biography;
     teachers.expertise = expertise;
 

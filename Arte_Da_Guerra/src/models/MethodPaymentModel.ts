@@ -1,7 +1,9 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 
-class MethodPaymentModel extends Model {}
+class MethodPaymentModel extends Model {
+  name: string | undefined;
+}
 
 MethodPaymentModel.init(
   {
