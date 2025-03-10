@@ -2,6 +2,7 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 import UserModel from "./UserModel";
 import ClassModel from "./ClassModel";
+import MethodPaymentModel from "./MethodPaymentModel";
 
 class PaymentModel extends Model {}
 
@@ -17,6 +18,14 @@ PaymentModel.init(
       allowNull: false,
       references: {
         model: UserModel,
+        key: "id",
+      },
+    },
+    methodpayment_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: MethodPaymentModel,
         key: "id",
       },
     },
@@ -50,5 +59,6 @@ PaymentModel.init(
 
 PaymentModel.belongsTo(UserModel, { foreignKey: "user_id" });
 PaymentModel.belongsTo(ClassModel, { foreignKey: "class_id" });
+PaymentModel.belongsTo(MethodPaymentModel, { foreignKey: "methodpayment_id" });
 
 export default PaymentModel;

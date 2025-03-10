@@ -1,9 +1,9 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 
-class MethodPayment extends Model {}
+class MethodPaymentModel extends Model {}
 
-MethodPayment.init(
+MethodPaymentModel.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -22,4 +22,4 @@ MethodPayment.init(
   }
 );
 
-export default MethodPayment;
+export default MethodPaymentModel;
