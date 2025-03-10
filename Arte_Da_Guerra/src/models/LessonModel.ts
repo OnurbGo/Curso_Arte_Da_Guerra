@@ -2,7 +2,12 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 import ClassModel from "./ClassModel";
 
-class LessonModel extends Model {}
+class LessonModel extends Model {
+  title: string | undefined;
+  description: string | undefined;
+  video_url: string | undefined;
+  order: number | undefined;
+}
 
 LessonModel.init(
   {
@@ -44,5 +49,6 @@ LessonModel.init(
 );
 
 LessonModel.belongsTo(ClassModel, { foreignKey: "class_id" });
+LessonModel.hasOne(ClassModel, { foreignKey: "class_id" });
 
 export default LessonModel;

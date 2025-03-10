@@ -57,12 +57,27 @@ export const updateUser = async (
       return res.status(400).json({ error: "Name is required" });
     }
 
+    if (!email || email === "") {
+      return res.status(400).json({ error: "Name is required" });
+    }
+
+    if (!password || password === "") {
+      return res.status(400).json({ error: "Password is required" });
+    }
+
+    if (!type || type === "") {
+      return res.status(400).json({ error: "Type is required" });
+    }
+
     const user = await UserModel.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
     user.name = name;
+    user.email = email;
+    user.password = password;
+    user.type = type;
 
     await user.save();
     res.status(201).json(user);
