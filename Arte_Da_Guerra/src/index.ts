@@ -1,14 +1,13 @@
 import express from "express";
 import sequelize from "./config/database";
 import { error } from "console";
-import UserModel from "./models/UserModel";
 import UserRoutes from "./routes/UserRouter";
-import TeachersModel from "./models/TeachersModel";
-import ClassModel from "./models/ClassModel";
-import LessonModel from "./models/LessonModel";
-import PaymentModel from "./models/PaymentModel";
-import InscriptionModel from "./models/InscriptionModel";
-import MethodPaymentModel from "./models/MethodPaymentModel";
+import TeachersRoutes from "./routes/TeachersRouter";
+import ClassRoutes from "./routes/ClassRouter";
+import LessonRoutes from "./routes/LessonRouter";
+import PaymentRoutes from "./routes/PaymentRouter";
+import InscriptionRoutes from "./routes/InscriptionRouter";
+import MethodPaymentRoutes from "./routes/MethodPaymentRouter";
 
 const app = express();
 const port = 3000;
@@ -19,51 +18,12 @@ app.get("/", (req, res) => {
 
 app.use(express.json());
 app.use(UserRoutes);
-//app.use(TeachersRoutes);
-//app.use(ClassRoutes);
-//app.use(LessonRoutes);
-//app.use(InscriptionRoutes);
-//app.use(PaymentRoutes);
-
-app.get("/teachers", async (req, res) => {
-  try {
-    const teachers = await TeachersModel.findAll({
-      include: {
-        model: UserModel,
-        attributes: ["id", "name", "email", "type"],
-      },
-    });
-    res.send(teachers);
-  } catch (error) {
-    console.error("Error Searching For Teachers:", error);
-    res.status(500).send("Error Searching For Teachers");
-  }
-});
-
-app.get("/class", async (req, res) => {
-  const clas = await ClassModel.findAll();
-  res.send(clas);
-});
-
-app.get("/lesson", async (req, res) => {
-  const lesson = await LessonModel.findAll();
-  res.send(lesson);
-});
-
-app.get("/inscription", async (req, res) => {
-  const inscription = await InscriptionModel.findAll();
-  res.send(inscription);
-});
-
-app.get("/payment", async (req, res) => {
-  const payment = await PaymentModel.findAll();
-  res.send(payment);
-});
-
-app.get("/methodpayment", async (req, res) => {
-  const payment = await MethodPaymentModel.findAll();
-  res.send(payment);
-});
+app.use(TeachersRoutes);
+app.use(ClassRoutes);
+app.use(LessonRoutes);
+app.use(InscriptionRoutes);
+app.use(PaymentRoutes);
+app.use(MethodPaymentRoutes);
 
 sequelize
   .sync({ alter: true })

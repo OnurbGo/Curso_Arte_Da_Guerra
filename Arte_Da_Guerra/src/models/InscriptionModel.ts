@@ -5,6 +5,7 @@ import ClassModel from "./ClassModel";
 
 class InscriptionModel extends Model {
   user_id: number | undefined;
+  class_id: number | undefined;
   inscription_date: Date | undefined;
   status: Enumerator | undefined;
 }

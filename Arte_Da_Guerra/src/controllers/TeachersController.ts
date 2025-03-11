@@ -19,7 +19,7 @@ export const createTeachers = async (req: Request, res: Response) => {
     const { user_id, biography, expertise } = req.body;
 
     if (!user_id || user_id === "") {
-      return res.status(400).json({ error: "Biography is required" });
+      return res.status(400).json({ error: "User_id is required" });
     }
 
     if (!biography || biography === "") {
@@ -48,7 +48,7 @@ export const updateTeachers = async (
   try {
     const { user_id, biography, expertise } = req.body;
     if (!user_id || user_id === "") {
-      return res.status(400).json({ error: "Biography is required" });
+      return res.status(400).json({ error: "User_id is required" });
     }
 
     if (!biography || biography === "") {
