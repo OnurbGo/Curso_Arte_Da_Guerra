@@ -50,6 +50,5 @@ ClassModel.init(
 );
 
 ClassModel.belongsTo(TeachersModel, { foreignKey: "master_id" });
-ClassModel.hasOne(TeachersModel, { foreignKey: "master_id" });
 
 export default ClassModel;

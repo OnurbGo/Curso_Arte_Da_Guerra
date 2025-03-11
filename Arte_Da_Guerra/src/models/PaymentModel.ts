@@ -64,8 +64,13 @@ PaymentModel.init(
   }
 );
 
-PaymentModel.belongsTo(UserModel, { foreignKey: "user_id" });
-PaymentModel.belongsTo(ClassModel, { foreignKey: "class_id" });
+PaymentModel.belongsTo(UserModel, { foreignKey: "aluno_id" });
+UserModel.hasMany(PaymentModel, { foreignKey: "aluno_id" });
+
+PaymentModel.belongsTo(ClassModel, { foreignKey: "curso_id" });
+ClassModel.hasMany(PaymentModel, { foreignKey: "curso_id" });
+
 PaymentModel.belongsTo(MethodPaymentModel, { foreignKey: "methodpayment_id" });
+MethodPaymentModel.hasMany(PaymentModel, { foreignKey: "methodpayment_id" });
 
 export default PaymentModel;

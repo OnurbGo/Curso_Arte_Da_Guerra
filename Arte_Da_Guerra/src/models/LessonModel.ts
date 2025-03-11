@@ -50,6 +50,6 @@ LessonModel.init(
 );
 
 LessonModel.belongsTo(ClassModel, { foreignKey: "class_id" });
-LessonModel.hasOne(ClassModel, { foreignKey: "class_id" });
+ClassModel.hasMany(LessonModel, { foreignKey: "class_id" });
 
 export default LessonModel;
