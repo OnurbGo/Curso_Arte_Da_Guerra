@@ -40,6 +40,6 @@ TeachersModel.init(
 );
 
 TeachersModel.belongsTo(UserModel, { foreignKey: "user_id" });
-TeachersModel.hasOne(UserModel, { foreignKey: "user_id" });
+UserModel.hasOne(TeachersModel, { foreignKey: "user_id" });
 
 export default TeachersModel;
