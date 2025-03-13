@@ -1,5 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
+import bcrypt from "bcrypt";
+import { ValidationOptions } from "sequelize/types/instance-validator";
 
 class UserModel extends Model {
   name: string | undefined;
@@ -7,6 +9,14 @@ class UserModel extends Model {
   password: string | undefined;
   type: Enumerator | undefined;
   registration_date: Date | undefined;
+
+  public async hashPassword() {
+    this.password = await bcrypt.hash(this.password!, 10);
+  }
+
+  public async validatePassword(password: string) {
+    return bcrypt.compare(password, this.password!);
+  }
 }
 
 UserModel.init(
@@ -44,5 +54,15 @@ UserModel.init(
     tableName: "User",
   }
 );
+
+UserModel.beforeCreate(async (user: UserModel) => {
+  await user.hashPassword();
+});
+
+UserModel.beforeUpdate(async (user: UserModel) => {
+  if (user.changed("password")) {
+    await user.hashPassword();
+  }
+});
 
 export default UserModel;

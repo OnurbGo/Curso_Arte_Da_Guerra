@@ -8,6 +8,7 @@ import LessonRoutes from "./routes/LessonRouter";
 import PaymentRoutes from "./routes/PaymentRouter";
 import InscriptionRoutes from "./routes/InscriptionRouter";
 import MethodPaymentRoutes from "./routes/MethodPaymentRouter";
+import LoginRoutes from "./routes/LoginRouter";
 
 const app = express();
 const port = 3000;
@@ -24,6 +25,7 @@ app.use(LessonRoutes);
 app.use(InscriptionRoutes);
 app.use(PaymentRoutes);
 app.use(MethodPaymentRoutes);
+app.use(LoginRoutes);
 
 sequelize
   .sync({ alter: true })
