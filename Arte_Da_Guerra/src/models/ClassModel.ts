@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 import TeachersModel from "./TeachersModel";
+import UserModel from "./UserModel";
 
 class ClassModel extends Model {
   master_id: number | undefined;
@@ -50,5 +51,6 @@ ClassModel.init(
 );
 
 ClassModel.belongsTo(TeachersModel, { foreignKey: "master_id" });
+TeachersModel.hasMany(ClassModel, { foreignKey: "master_id" });
 
 export default ClassModel;

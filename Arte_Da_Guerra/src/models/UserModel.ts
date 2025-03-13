@@ -1,7 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 import bcrypt from "bcrypt";
-import { ValidationOptions } from "sequelize/types/instance-validator";
 
 class UserModel extends Model {
   name: string | undefined;
