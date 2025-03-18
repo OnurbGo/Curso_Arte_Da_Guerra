@@ -53,12 +53,15 @@ export const updateUser = async (
 ) => {
   try {
     const { name, email, password, type, registration_date } = req.body;
+    const loggedUser = req.body.user;
+    console.log("logged", loggedUser);
+
     if (!name || name === "") {
       return res.status(400).json({ error: "Name is required" });
     }
 
     if (!email || email === "") {
-      return res.status(400).json({ error: "Name is required" });
+      return res.status(400).json({ error: "Emailt is required" });
     }
 
     if (!password || password === "") {
@@ -83,6 +86,7 @@ export const updateUser = async (
     user.password = password;
     user.type = type;
     user.registration_date = registration_date;
+    user.uptdatedBy = loggedUser.id;
 
     await user.save();
     res.status(201).json(user);

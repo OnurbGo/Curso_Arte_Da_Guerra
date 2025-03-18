@@ -1,1 +1,5 @@
 //npm create vite@latest my-app -- --template react-ts
+
+npm i @eslint/js @types/react @types/react-dom @vitejs/plugin-react eslint eslint-plugin-react-hooks eslint-plugin-react-refresh globals typescript-eslint --save-dev
+
+npm i react-router

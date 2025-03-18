@@ -8,6 +8,7 @@ class UserModel extends Model {
   password: string | undefined;
   type: Enumerator | undefined;
   registration_date: Date | undefined;
+  uptdatedBy: number | undefined;
 
   public async hashPassword() {
     this.password = await bcrypt.hash(this.password!, 10);
@@ -44,6 +45,10 @@ UserModel.init(
     },
     registration_date: {
       type: DataTypes.DATE,
+      allowNull: true,
+    },
+    updatedBy: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },
