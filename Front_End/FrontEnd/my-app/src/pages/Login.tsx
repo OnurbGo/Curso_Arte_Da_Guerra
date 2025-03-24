@@ -28,6 +28,7 @@ import {
 } from "@heroicons/react/20/solid";
 
 import { CheckIcon } from "@heroicons/react/20/solid";
+import { useNavigate } from "react-router";
 
 const products = [
   {
@@ -105,10 +106,11 @@ function classNames(...classes: string[]) {
 }
 
 export default function Login() {
+  const navigation = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
+    <div className="relative isolate bg-white px-6 lg:px-8">
       <header className="bg-white">
         <nav
           aria-label="Global"
@@ -202,7 +204,11 @@ export default function Login() {
             </a>
           </PopoverGroup>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="#" className="text-sm/6 font-semibold text-gray-900">
+            <a
+              onClick={() => navigation("/createaccount")}
+              href="#"
+              className="text-sm/6 font-semibold text-gray-900"
+            >
               Log in <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
