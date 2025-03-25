@@ -119,7 +119,11 @@ export default function Login() {
           <div className="flex lg:flex-1">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <img alt="Yin and Yang" src="" className="h-8 w-auto" />
+              <img
+                alt="Yin and Yang"
+                src="https://github.com/OnurbGo/Curso_Arte_Da_Guerra/blob/main/Front_End/FrontEnd/my-app/src/assets/Yin_and_Yang_symbol.png?raw=true"
+                className="h-8 w-auto"
+              />
             </a>
           </div>
           <div className="flex lg:hidden">
@@ -201,7 +205,7 @@ export default function Login() {
           </PopoverGroup>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             <a
-              onClick={() => navigation("/createaccount")}
+              onClick={() => navigation("/loginaccount")}
               href="#"
               className="text-sm/6 font-semibold text-gray-900"
             >

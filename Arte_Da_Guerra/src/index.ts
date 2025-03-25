@@ -9,9 +9,12 @@ import PaymentRoutes from "./routes/PaymentRouter";
 import InscriptionRoutes from "./routes/InscriptionRouter";
 import MethodPaymentRoutes from "./routes/MethodPaymentRouter";
 import LoginRoutes from "./routes/LoginRouter";
+import cors from "cors";
 
 const app = express();
 const port = 3000;
+
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Hello World !");
