@@ -26,7 +26,6 @@ import {
   PhoneIcon,
   PlayCircleIcon,
 } from "@heroicons/react/20/solid";
-import { useNavigate } from "react-router";
 
 const callsToAction = [
   { name: "Watch demo", href: "#", icon: PlayCircleIcon },
@@ -67,7 +66,6 @@ const products = [
 ];
 
 const Header = () => {
-  const navigation = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -166,8 +164,7 @@ const Header = () => {
           </PopoverGroup>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             <a
-              onClick={() => navigation("/loginaccount")}
-              href="#"
+              href="/loginaccount"
               className="text-sm/6 font-semibold text-gray-900"
             >
               Log in <span aria-hidden="true">&rarr;</span>
