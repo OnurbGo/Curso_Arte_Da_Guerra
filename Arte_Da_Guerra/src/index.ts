@@ -1,6 +1,5 @@
 import express from "express";
 import sequelize from "./config/database";
-import { error } from "console";
 import UserRoutes from "./routes/UserRouter";
 import TeachersRoutes from "./routes/TeachersRouter";
 import ClassRoutes from "./routes/ClassRouter";
@@ -10,17 +9,21 @@ import InscriptionRoutes from "./routes/InscriptionRouter";
 import MethodPaymentRoutes from "./routes/MethodPaymentRouter";
 import LoginRoutes from "./routes/LoginRouter";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const port = 3000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
-app.get("/", (req, res) => {
-  res.send("Hello World !");
-});
-
+app.use(cookieParser());
 app.use(express.json());
+
 app.use(UserRoutes);
 app.use(TeachersRoutes);
 app.use(ClassRoutes);
@@ -37,9 +40,8 @@ sequelize
   })
   .catch((error) => {
     console.error("ERROR in Database synchronization:", error.message);
-    console.error(error.stack);
   });
 
 app.listen(port, () => {
-  console.log("Server is running in port:", port);
+  console.log("Server is running on port:", port);
 });

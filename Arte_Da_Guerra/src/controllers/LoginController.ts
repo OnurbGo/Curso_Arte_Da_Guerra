@@ -20,5 +20,12 @@ export const LoginUser = async (req: Request, res: Response) => {
 
   const token = generateToken(user);
 
+  res.cookie("authToken", token, {
+    httpOnly: true, // Impede que o frontend acesse via JS
+    secure: false, // Defina true se estiver rodando em produção com HTTPS
+    sameSite: "lax", // Permite envio do cookie apenas em requisições do mesmo domínio
+    maxAge: 7 * 24 * 60 * 60 * 1000, // Expira em 7 dias
+  });
+
   res.status(200).json({ menssage: "Login succeful", token });
 };

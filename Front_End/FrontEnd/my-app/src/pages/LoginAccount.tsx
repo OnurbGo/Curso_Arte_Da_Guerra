@@ -1,28 +1,30 @@
 import { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginAccount() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
 
     try {
-      const response = await axios.post("http://localhost:3000/login", {
-        email,
-        password,
-      });
+      const { data } = await axios.post(
+        "http://localhost:3000/login",
+        { email, password },
+        { withCredentials: true }
+      );
 
-      if (response.data.token) {
-        Cookies.set("authToken", response.data.token, { expires: 7 });
-        setSuccess(true);
-      }
+      Cookies.set("authToken", data.token, { expires: 7 });
+      setSuccess(true);
+
+      navigate("/");
     } catch (error) {
       console.error("Erro no login:", error);
       setError("Erro ao fazer login. Verifique suas credenciais.");
@@ -91,9 +93,7 @@ export default function LoginAccount() {
             </div>
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
-            {success && (
-              <p className="text-green-500 text-sm">Login successful!</p>
-            )}
+            {success && <p className="text-green-500 text-sm"></p>}
 
             <div>
               <button
