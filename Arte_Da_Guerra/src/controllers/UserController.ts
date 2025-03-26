@@ -16,7 +16,7 @@ export const getUserById = async (
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, type, registration_date } = req.body;
+    const { name, email, CPF, password, type, registration_date } = req.body;
 
     if (!name || name === "") {
       return res.status(400).json({ error: "Name is Required" });
@@ -24,6 +24,10 @@ export const createUser = async (req: Request, res: Response) => {
 
     if (!email || email === "") {
       return res.status(400).json({ error: "Email is Required" });
+    }
+
+    if (!CPF || CPF === "") {
+      return res.status(400).json({ error: "CPF is Required" });
     }
 
     if (!password || password === "") {
@@ -37,6 +41,7 @@ export const createUser = async (req: Request, res: Response) => {
     const user = await UserModel.create({
       name,
       email,
+      CPF,
       password,
       type,
       registration_date,
@@ -52,7 +57,7 @@ export const updateUser = async (
   res: Response
 ) => {
   try {
-    const { name, email, password, type, registration_date } = req.body;
+    const { name, email, CPF, password, type, registration_date } = req.body;
     const loggedUser = req.body.user;
     console.log("logged", loggedUser);
 
@@ -61,7 +66,11 @@ export const updateUser = async (
     }
 
     if (!email || email === "") {
-      return res.status(400).json({ error: "Emailt is required" });
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    if (!CPF || CPF === "") {
+      return res.status(400).json({ error: "CPF is Required" });
     }
 
     if (!password || password === "") {
@@ -83,6 +92,7 @@ export const updateUser = async (
 
     user.name = name;
     user.email = email;
+    user.CPF = CPF;
     user.password = password;
     user.type = type;
     user.registration_date = registration_date;

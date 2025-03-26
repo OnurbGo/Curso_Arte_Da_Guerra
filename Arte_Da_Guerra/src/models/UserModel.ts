@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 class UserModel extends Model {
   name: string | undefined;
   email: string | undefined;
+  CPF: string | undefined;
   password: string | undefined;
   type: Enumerator | undefined;
   registration_date: Date | undefined;
@@ -31,6 +32,11 @@ UserModel.init(
       allowNull: true,
     },
     email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
+    },
+    CPF: {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true,
