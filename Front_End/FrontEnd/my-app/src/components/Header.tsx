@@ -26,6 +26,7 @@ import {
   PhoneIcon,
   PlayCircleIcon,
 } from "@heroicons/react/20/solid";
+import { useNavigate } from "react-router";
 
 const callsToAction = [
   { name: "Watch demo", href: "#", icon: PlayCircleIcon },
@@ -66,6 +67,7 @@ const products = [
 ];
 
 const Header = () => {
+  const navigation = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -152,8 +154,8 @@ const Header = () => {
               </PopoverPanel>
             </Popover>
 
-            <a href="#" className="text-sm/6 font-semibold text-gray-900">
-              Features
+            <a href="/class" className="text-sm/6 font-semibold text-gray-900">
+              Classes
             </a>
             <a href="#" className="text-sm/6 font-semibold text-gray-900">
               Marketplace
@@ -164,7 +166,8 @@ const Header = () => {
           </PopoverGroup>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             <a
-              href="/loginaccount"
+              onClick={() => navigation("/loginaccount")}
+              href="#"
               className="text-sm/6 font-semibold text-gray-900"
             >
               Log in <span aria-hidden="true">&rarr;</span>
@@ -221,10 +224,10 @@ const Header = () => {
                     </DisclosurePanel>
                   </Disclosure>
                   <a
-                    href="#"
+                    href="/class"
                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                   >
-                    Features
+                    Classes
                   </a>
                   <a
                     href="#"

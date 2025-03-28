@@ -38,7 +38,6 @@ export default function RegisterUser() {
     setSuccess(false);
     setErrorAlert(false);
 
-    // Validações antes de enviar
     if (!validateEmail(formData.email)) {
       setError("Email inválido. Use um formato válido.");
       setErrorAlert(true);

@@ -1,15 +1,17 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/database";
 import bcrypt from "bcrypt";
+import TeachersModel from "./TeachersModel";
 
 class UserModel extends Model {
   name: string | undefined;
   email: string | undefined;
   CPF: string | undefined;
   password: string | undefined;
-  type: Enumerator | undefined;
+  type: "student" | "teacher" | undefined;
   registration_date: Date | undefined;
-  uptdatedBy: number | undefined;
+  updatedBy: number | undefined;
+  //id: number | undefined;
 
   public async hashPassword() {
     this.password = await bcrypt.hash(this.password!, 10);
@@ -74,5 +76,22 @@ UserModel.beforeUpdate(async (user: UserModel) => {
     await user.hashPassword();
   }
 });
+
+/*interface GlobalUser {
+  id?: number;
+}
+
+export const globalUser: GlobalUser = {};
+
+UserModel.afterCreate(async (user: UserModel) => {
+  if (user.type === "teacher") {
+    await TeachersModel.create({
+      user_id: globalUser.id,
+      biography: "",
+      expertise: "",
+    });
+  }
+});
+*/
 
 export default UserModel;

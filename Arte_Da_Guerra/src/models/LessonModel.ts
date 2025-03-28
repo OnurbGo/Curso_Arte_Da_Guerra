@@ -6,8 +6,8 @@ class LessonModel extends Model {
   class_id: number | undefined;
   title: string | undefined;
   description: string | undefined;
-  video_url: string | undefined;
-  order: number | undefined;
+  url_video: string | undefined;
+  url_img: string | undefined;
 }
 
 LessonModel.init(
@@ -33,12 +33,12 @@ LessonModel.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    video_url: {
+    url_video: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    order: {
-      type: DataTypes.INTEGER,
+    url_img: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },

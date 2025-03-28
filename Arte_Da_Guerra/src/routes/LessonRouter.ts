@@ -4,15 +4,17 @@ import {
   destroyLessonById,
   getAll,
   getLessonById,
+  getLessonsByClassId,
   updateLesson,
 } from "../controllers/LessonController";
 
 const router = express.Router();
 
-router.get("/lesson", getAll);
-router.get("/lesson/:id", getLessonById);
-router.post("/lesson", createLesson);
-router.put("/lesson/:id", updateLesson);
-router.delete("/lesson/:id", destroyLessonById);
+router.get("/lessons", getAll);
+router.get("/lessons/:id", getLessonById);
+router.get("/lessons/class/:class_id", getLessonsByClassId);
+router.post("/lessons", createLesson);
+router.put("/lessons/:id", updateLesson);
+router.delete("/lessons/:id", destroyLessonById);
 
 export default router;

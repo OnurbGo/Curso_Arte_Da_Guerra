@@ -16,7 +16,14 @@ export const getClassById = async (
 
 export const createClass = async (req: Request, res: Response) => {
   try {
-    const { master_id, title, description, price, creation_date } = req.body;
+    const {
+      master_id,
+      title,
+      description,
+      creation_date,
+      url_img,
+      url_img_banner,
+    } = req.body;
 
     if (!master_id || master_id === "") {
       return res.status(400).json({ error: "Title is required" });
@@ -30,20 +37,25 @@ export const createClass = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Description is required" });
     }
 
-    if (!price || price === "") {
-      return res.status(400).json({ error: "Price is required" });
+    if (!creation_date || creation_date === "") {
+      return res.status(400).json({ error: "Creation date is required" });
     }
 
-    if (!creation_date || creation_date === "") {
-      return res.status(400).json({ error: "Creation_date is required" });
+    if (!url_img || url_img === "") {
+      return res.status(400).json({ error: "Url Image is required" });
+    }
+
+    if (!url_img_banner || url_img_banner === "") {
+      return res.status(400).json({ error: "Url banner Image is required" });
     }
 
     const Class = await ClassModel.create({
       master_id,
       title,
       description,
-      price,
       creation_date,
+      url_img,
+      url_img_banner,
     });
     res.status(201).json(Class);
   } catch (error) {
@@ -56,7 +68,7 @@ export const updateClass = async (
   res: Response
 ) => {
   try {
-    const { master_id, title, description, price, creation_date } = req.body;
+    const { master_id, title, description, creation_date } = req.body;
     if (!master_id || master_id === "") {
       return res.status(400).json({ error: "Title is required" });
     }
@@ -67,10 +79,6 @@ export const updateClass = async (
 
     if (!description || description === "") {
       return res.status(400).json({ error: "Description is required" });
-    }
-
-    if (!price || price === "") {
-      return res.status(400).json({ error: "Price is required" });
     }
 
     if (!creation_date || creation_date === "") {
@@ -84,7 +92,6 @@ export const updateClass = async (
 
     Class.title = title;
     Class.description = description;
-    Class.price = price;
     Class.creation_date = creation_date;
 
     await Class.save();

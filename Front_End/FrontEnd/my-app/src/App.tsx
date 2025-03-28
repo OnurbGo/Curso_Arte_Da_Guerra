@@ -5,6 +5,9 @@ import LoginAccount from "./pages/LoginAccount";
 import CreateAccount from "./pages/CreateAccount";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Class from "./pages/Class";
+import Course from "./pages/Course";
+import Lesson from "./pages/Lesson";
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/loginaccount" element={<LoginAccount />} />
         <Route path="/createaccount" element={<CreateAccount />} />
+        <Route path="/class" element={<Class />} />
+        <Route path="/course/:id" element={<Course />} />
+        <Route path="/lesson/:id" element={<Lesson />} />
       </Routes>
       <Footer />
     </BrowserRouter>

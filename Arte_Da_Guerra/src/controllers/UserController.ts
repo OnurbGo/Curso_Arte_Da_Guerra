@@ -96,7 +96,7 @@ export const updateUser = async (
     user.password = password;
     user.type = type;
     user.registration_date = registration_date;
-    user.uptdatedBy = loggedUser.id;
+    user.updatedBy = loggedUser.id;
 
     await user.save();
     res.status(201).json(user);

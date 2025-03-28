@@ -7,8 +7,9 @@ class ClassModel extends Model {
   master_id: number | undefined;
   title: string | undefined;
   description: string | undefined;
-  price: number | undefined;
   creation_date: Date | undefined;
+  url_img: string | undefined;
+  url_img_banner: string | undefined;
 }
 
 ClassModel.init(
@@ -34,12 +35,16 @@ ClassModel.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    price: {
-      type: DataTypes.DECIMAL,
-      allowNull: false,
-    },
     creation_date: {
       type: DataTypes.DATE,
+      allowNull: false,
+    },
+    url_img: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    url_img_banner: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },
