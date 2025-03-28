@@ -4,66 +4,55 @@ import { CheckIcon } from "@heroicons/react/20/solid";
 
 const tiers = [
   {
-    name: "Hobby",
-    id: "tier-hobby",
+    name: "Estudante",
+    id: "tier-student",
     href: "#",
-    priceMonthly: "$29",
+    priceMonthly: "R$29",
     description:
-      "The perfect plan if you're just getting started with our product.",
+      "O plano ideal para alunos que querem aprender e aprimorar suas habilidades.",
     features: [
-      "25 products",
-      "Up to 10,000 subscribers",
-      "Advanced analytics",
-      "24-hour support response time",
+      "Acesso a todas as aulas básicas",
+      "Certificados de conclusão",
+      "Suporte da comunidade",
+      "Material complementar",
     ],
     featured: false,
   },
   {
-    name: "Enterprise",
-    id: "tier-enterprise",
+    name: "Professor",
+    id: "tier-teacher",
     href: "#",
-    priceMonthly: "$99",
-    description: "Dedicated support and infrastructure for your company.",
+    priceMonthly: "R$99",
+    description:
+      "Para instrutores que desejam ensinar e compartilhar seu conhecimento.",
     features: [
-      "Unlimited products",
-      "Unlimited subscribers",
-      "Advanced analytics",
-      "Dedicated support representative",
-      "Marketing automations",
-      "Custom integrations",
+      "Criação de cursos ilimitados",
+      "Monetização de aulas",
+      "Suporte prioritário",
+      "Ferramentas avançadas de ensino",
+      "Relatórios de desempenho",
+      "Acesso ao fórum de instrutores",
     ],
     featured: true,
   },
 ];
 
-function classNames(...classes: string[]) {
+function classNames(...classes: string[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Home() {
   return (
     <div className="relative isolate bg-white px-6 lg:px-8">
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl"
-      >
-        <div
-          style={{
-            clipPath:
-              "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-          }}
-          className="mx-auto aspect-1155/678 w-[72.1875rem] bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
-        />
-      </div>
       <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-base/7 font-semibold text-indigo-600">Pricing</h2>
+        <h2 className="text-base/7 font-semibold text-indigo-600">Planos</h2>
         <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-6xl">
-          Choose the right plan for you
+          Escolha o plano ideal para você
         </p>
       </div>
-      <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-gray-600 sm:text-xl/8">
-        Choose an affordable plan that’s packed with the best features for
-        engaging your audience, creating customer loyalty, and driving sales.
+      <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-gray-600 sm:text-xl/8">
+        Selecione um plano acessível e aproveite as melhores ferramentas para
+        ensinar ou aprender artes marciais online.
       </p>
       <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
         {tiers.map((tier, tierIdx) => (
@@ -105,7 +94,7 @@ export default function Home() {
                   "text-base"
                 )}
               >
-                /month
+                /mês
               </span>
             </p>
             <p
@@ -146,7 +135,7 @@ export default function Home() {
                 "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
               )}
             >
-              Get started today
+              Escolher plano
             </a>
           </div>
         ))}
