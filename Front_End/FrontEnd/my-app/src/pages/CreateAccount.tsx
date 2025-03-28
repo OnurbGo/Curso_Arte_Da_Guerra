@@ -13,26 +13,43 @@ export default function RegisterUser() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [errorAlert, setErrorAlert] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState("");
 
   // regex email
-  const validateEmail = (email: string) => {
+  const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
   // regex cpf
-  const validateCPF = (cpf: string) => {
+  const validateCPF = (cpf) => {
     const cpfRegex = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
     return cpfRegex.test(cpf);
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordChange = (e) => {
+    const password = e.target.value;
+    setFormData({ ...formData, password });
+
+    // Verificar força da senha
+    if (password.length < 6) {
+      setPasswordStrength("Fraca");
+    } else if (
+      password.length >= 6 &&
+      /[A-Z]/.test(password) &&
+      /[0-9]/.test(password)
+    ) {
+      setPasswordStrength("Forte");
+    } else {
+      setPasswordStrength("Média");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
@@ -48,6 +65,13 @@ export default function RegisterUser() {
       setError(
         "CPF inválido. Use o formato XXX.XXX.XXX-XX ou números sem pontuação."
       );
+      setErrorAlert(true);
+      return;
+    }
+
+    // Verificar força da senha
+    if (passwordStrength === "Fraca") {
+      setError("A senha é fraca. Por favor, use uma senha mais forte.");
       setErrorAlert(true);
       return;
     }
@@ -132,9 +156,30 @@ export default function RegisterUser() {
               name="password"
               type="password"
               required
-              onChange={handleChange}
+              onChange={handlePasswordChange}
+              id="hs-strong-password-base"
               className="block w-full rounded-md border-gray-300 px-3 py-1.5 text-gray-900 shadow-sm focus:outline-indigo-600"
             />
+            <div
+              data-hs-strong-password='{
+                "target": "#hs-strong-password-base",
+                "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-blue-500 opacity-50 mx-1"
+              }'
+              className="flex mt-2 -mx-1"
+            ></div>
+            {passwordStrength && (
+              <p
+                className={`text-sm ${
+                  passwordStrength === "Fraca"
+                    ? "text-red-500"
+                    : passwordStrength === "Média"
+                    ? "text-yellow-500"
+                    : "text-teal-500"
+                }`}
+              >
+                Senha {passwordStrength}
+              </p>
+            )}
           </div>
 
           <div>

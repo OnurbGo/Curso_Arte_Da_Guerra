@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Class = () => {
   const [classes, setClasses] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchClasses = async () => {
       try {
@@ -16,6 +19,16 @@ const Class = () => {
       }
     };
     fetchClasses();
+
+    AOS.init({
+      duration: 1000,
+      easing: "ease-in-out",
+      once: true,
+    });
+
+    return () => {
+      AOS.refresh();
+    };
   }, []);
 
   const handleNext = () => {
@@ -52,11 +65,12 @@ const Class = () => {
               <img
                 src={product.url_img_banner}
                 alt={product.title}
-                className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+                className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 rounded-none"
               />
             </div>
           ))}
         </div>
+
         {/* Indicadores do slider */}
         <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
           {classes.map((_, index) => (
@@ -132,7 +146,8 @@ const Class = () => {
               <a
                 key={classItem.id}
                 className="group"
-                onClick={() => handleClassClick(classItem.id)} // Adicionando a função de navegação
+                onClick={() => handleClassClick(classItem.id)}
+                data-aos="fade-up"
               >
                 <img
                   alt={classItem.title}

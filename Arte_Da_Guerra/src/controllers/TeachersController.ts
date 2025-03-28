@@ -1,17 +1,45 @@
 import { Request, Response } from "express";
 import TeachersModel from "../models/TeachersModel";
+import UserModel from "../models/UserModel";
 
 export const getAll = async (req: Request, res: Response) => {
-  const teachers = await TeachersModel.findAll();
-  res.send(teachers);
+  try {
+    const teachers = await TeachersModel.findAll({
+      include: [
+        {
+          model: UserModel,
+          attributes: ["name"],
+        },
+      ],
+    });
+    res.send(teachers);
+  } catch (error) {
+    res.status(500).json("Erro interno no servidor: " + error);
+  }
 };
 
 export const getTeachersById = async (
   req: Request<{ id: number }>,
   res: Response
 ) => {
-  const teachers = await TeachersModel.findByPk(req.params.id);
-  return res.json(teachers);
+  try {
+    const teacher = await TeachersModel.findByPk(req.params.id, {
+      include: [
+        {
+          model: UserModel,
+          attributes: ["name"], // Retorna o campo 'name' do usuário
+        },
+      ],
+    });
+
+    if (!teacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    return res.json(teacher);
+  } catch (error) {
+    return res.status(500).json("Erro interno no servidor: " + error);
+  }
 };
 
 export const createTeachers = async (req: Request, res: Response) => {
@@ -30,12 +58,12 @@ export const createTeachers = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Expertise is required" });
     }
 
-    const teachers = await TeachersModel.create({
+    const teacher = await TeachersModel.create({
       user_id,
       biography,
       expertise,
     });
-    res.status(201).json(teachers);
+    res.status(201).json(teacher);
   } catch (error) {
     res.status(500).json("Erro interno no Servidor: " + error);
   }
@@ -59,17 +87,17 @@ export const updateTeachers = async (
       return res.status(400).json({ error: "Expertise is required" });
     }
 
-    const teachers = await TeachersModel.findByPk(req.params.id);
-    if (!teachers) {
+    const teacher = await TeachersModel.findByPk(req.params.id);
+    if (!teacher) {
       return res.status(404).json({ error: "Teacher not found" });
     }
 
-    teachers.user_id = user_id;
-    teachers.biography = biography;
-    teachers.expertise = expertise;
+    teacher.user_id = user_id;
+    teacher.biography = biography;
+    teacher.expertise = expertise;
 
-    await teachers.save();
-    res.status(201).json(teachers);
+    await teacher.save();
+    res.status(201).json(teacher);
   } catch (error) {
     res.status(500).json("Erro interno no servidor " + error);
   }
@@ -80,13 +108,12 @@ export const destroyTeachersById = async (
   res: Response
 ) => {
   try {
-    const teachers = await TeachersModel.findByPk(req.params.id);
-    if (!teachers) {
+    const teacher = await TeachersModel.findByPk(req.params.id);
+    if (!teacher) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    await teachers.destroy();
-
+    await teacher.destroy();
     res.status(204).send();
   } catch (error) {
     res.status(500).json("Erro interno no servidor " + error);

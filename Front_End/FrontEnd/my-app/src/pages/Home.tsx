@@ -1,17 +1,18 @@
-"use client";
-
+import { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { CheckIcon } from "@heroicons/react/20/solid";
 
 const tiers = [
   {
     name: "Estudante",
     id: "tier-student",
-    href: "#",
+    href: "/courses",
     priceMonthly: "R$29",
     description:
-      "O plano ideal para alunos que querem aprender e aprimorar suas habilidades.",
+      "O plano ideal para alunos que desejam aprender artes marciais, aprimorar técnicas e receber certificação.",
     features: [
-      "Acesso a todas as aulas básicas",
+      "Acesso às aulas básicas",
       "Certificados de conclusão",
       "Suporte da comunidade",
       "Material complementar",
@@ -21,13 +22,13 @@ const tiers = [
   {
     name: "Professor",
     id: "tier-teacher",
-    href: "#",
+    href: "/teacher/dashboard",
     priceMonthly: "R$99",
     description:
-      "Para instrutores que desejam ensinar e compartilhar seu conhecimento.",
+      "Para instrutores que querem compartilhar conhecimento, criar cursos e inspirar alunos com suas técnicas.",
     features: [
       "Criação de cursos ilimitados",
-      "Monetização de aulas",
+      "Monetização das aulas",
       "Suporte prioritário",
       "Ferramentas avançadas de ensino",
       "Relatórios de desempenho",
@@ -42,19 +43,101 @@ function classNames(...classes: string[]): string {
 }
 
 export default function Home() {
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
+
   return (
     <div className="relative isolate bg-white px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-base/7 font-semibold text-indigo-600">Planos</h2>
-        <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-6xl">
+      {/* Seção Superior: Imagens e Descrições */}
+      <div className="mx-auto max-w-6xl py-12">
+        <div className="text-center mb-12" data-aos="fade-up">
+          <h1 className="text-5xl font-bold text-gray-900">
+            Aprenda a Arte da Guerra
+          </h1>
+          <p className="mt-4 text-xl text-gray-600">
+            Explore inúmeros estilos de lutas, filosofias de vida, técnicas
+            derivadas e a arte da meditação.
+          </p>
+        </div>
+        <div className="space-y-12">
+          {/* Seção 1 */}
+          <div
+            className="flex items-center justify-between"
+            data-aos="fade-right"
+          >
+            <div className="w-1/2 pr-8">
+              <h2 className="text-3xl font-semibold">Treinamento</h2>
+              <p className="mt-4 text-lg text-gray-600">
+                Descubra técnicas e treine com os melhores instrutores.
+              </p>
+            </div>
+            <div className="w-1/2">
+              <img
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/Front_End/FrontEnd/my-app/src/assets/Treinamento.webp"
+                alt="Treinamento"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+          </div>
+
+          {/* Seção 2 */}
+          <div
+            className="flex items-center justify-between"
+            data-aos="fade-left"
+          >
+            <div className="w-1/2">
+              <img
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/Front_End/FrontEnd/my-app/src/assets/Paisagem.webp"
+                alt="Estilos de Lutas"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+            <div className="w-1/2 pl-8">
+              <h2 className="text-3xl font-semibold">Estilos de Lutas</h2>
+              <p className="mt-4 text-lg text-gray-600">
+                Explore as diferentes filosofias e estilos de combate que podem
+                transformar sua vida.
+              </p>
+            </div>
+          </div>
+
+          {/* Seção 3 */}
+          <div
+            className="flex items-center justify-between"
+            data-aos="fade-right"
+          >
+            <div className="w-1/2 pr-8">
+              <h2 className="text-3xl font-semibold">Meditação</h2>
+              <p className="mt-4 text-lg text-gray-600">
+                Encontre o equilíbrio através da meditação e da concentração.
+              </p>
+            </div>
+            <div className="w-1/2">
+              <img
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/Front_End/FrontEnd/my-app/src/assets/Meditação.webp"
+                alt="Meditação"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Seção Inferior: Escolher Plano */}
+      <div className="mx-auto max-w-4xl text-center mt-16" data-aos="fade-up">
+        <h2 className="text-base font-semibold text-indigo-600">Planos</h2>
+        <p className="mt-2 text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
           Escolha o plano ideal para você
         </p>
       </div>
-      <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-gray-600 sm:text-xl/8">
-        Selecione um plano acessível e aproveite as melhores ferramentas para
-        ensinar ou aprender artes marciais online.
+      <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-gray-600 sm:text-xl">
+        Selecione um plano para ensinar ou aprender artes marciais online.
       </p>
-      <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
+      <div
+        className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-2"
+        data-aos="fade-up"
+      >
         {tiers.map((tier, tierIdx) => (
           <div
             key={tier.id}
@@ -74,7 +157,7 @@ export default function Home() {
               id={tier.id}
               className={classNames(
                 tier.featured ? "text-indigo-400" : "text-indigo-600",
-                "text-base/7 font-semibold"
+                "text-base font-semibold"
               )}
             >
               {tier.name}
@@ -100,7 +183,7 @@ export default function Home() {
             <p
               className={classNames(
                 tier.featured ? "text-gray-300" : "text-gray-600",
-                "mt-6 text-base/7"
+                "mt-6 text-base"
               )}
             >
               {tier.description}
@@ -109,7 +192,7 @@ export default function Home() {
               role="list"
               className={classNames(
                 tier.featured ? "text-gray-300" : "text-gray-600",
-                "mt-8 space-y-3 text-sm/6 sm:mt-10"
+                "mt-8 space-y-3 text-sm"
               )}
             >
               {tier.features.map((feature) => (

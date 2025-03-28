@@ -4,6 +4,7 @@ import { generateToken } from "../utils/jwt";
 
 export const LoginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+
   if (!email || !password) {
     return res.status(400).json({ error: "Email or Password are required" });
   }
@@ -21,11 +22,11 @@ export const LoginUser = async (req: Request, res: Response) => {
   const token = generateToken(user);
 
   res.cookie("authToken", token, {
-    httpOnly: true, // Impede que o frontend acesse via JS
-    secure: false, // Defina true se estiver rodando em produção com HTTPS
-    sameSite: "lax", // Permite envio do cookie apenas em requisições do mesmo domínio
-    maxAge: 7 * 24 * 60 * 60 * 1000, // Expira em 7 dias
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  res.status(200).json({ menssage: "Login succeful", token });
+  res.status(200).json({ message: "Login successful" });
 };
