@@ -1,12 +1,29 @@
+// pages/Class.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Pagination from "../components/Pagination";
+import SearchBar from "../components/SearchBar";
 
-const Class = () => {
-  const [classes, setClasses] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+interface ClassItem {
+  id: number;
+  title: string;
+  description: string;
+  url_img: string;
+  url_img_banner: string;
+  teacherName?: string;
+  teacherSpecialization?: string;
+}
+
+const Class: React.FC = () => {
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [filteredClasses, setFilteredClasses] = useState<ClassItem[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentPageGrid, setCurrentPageGrid] = useState<number>(1);
   const navigate = useNavigate();
+
+  const classesPerPage = 12;
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -14,6 +31,7 @@ const Class = () => {
         const response = await fetch("http://localhost:3000/class");
         const data = await response.json();
         setClasses(data);
+        setFilteredClasses(data);
       } catch (error) {
         console.error("Erro ao buscar as classes:", error);
       }
@@ -41,9 +59,40 @@ const Class = () => {
     );
   };
 
-  const handleClassClick = (id) => {
+  const handleClassClick = (id: number) => {
     navigate(`/course/${id}`);
   };
+
+  // paginação para a grid de classes
+  const totalClasses = filteredClasses.length;
+  const currentClasses = filteredClasses.slice(
+    (currentPageGrid - 1) * classesPerPage,
+    currentPageGrid * classesPerPage
+  );
+
+  // fução de busca com filtro
+  const handleSearch = (query: string, field: string) => {
+    if (!query.trim()) {
+      setFilteredClasses(classes);
+      setCurrentPageGrid(1);
+      return;
+    }
+    const lowerQuery = query.toLowerCase();
+    const filtered = classes.filter((item) => {
+      switch (field) {
+        case "Nome do curso":
+          return item.title.toLowerCase().includes(lowerQuery);
+        case "Descrição do curso":
+          return item.description.toLowerCase().includes(lowerQuery);
+        default:
+          return false;
+      }
+    });
+    setFilteredClasses(filtered);
+    setCurrentPageGrid(1);
+  };
+
+  const searchOptions = ["Nome do curso", "Descrição do curso"];
 
   return (
     <div>
@@ -136,16 +185,20 @@ const Class = () => {
         </button>
       </div>
 
-      {/* Classes Section */}
-      <div className="bg-white">
+      {/* Search Bar */}
+      <div className="flex justify-center mt-6">
+        <SearchBar options={searchOptions} onSearch={handleSearch} />
+      </div>
+
+      {/* Classes Section com Paginação */}
+      <div className="bg-white mt-8">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
           <h2 className="sr-only">Classes</h2>
-
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-            {classes.map((classItem) => (
+            {currentClasses.map((classItem) => (
               <a
                 key={classItem.id}
-                className="group"
+                className="group cursor-pointer"
                 onClick={() => handleClassClick(classItem.id)}
                 data-aos="fade-up"
               >
@@ -154,7 +207,7 @@ const Class = () => {
                   src={classItem.url_img}
                   className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8"
                 />
-                <h3 className="mt-1 text-lg font-medium text-gray-900 text-center">
+                <h3 className="mt-1 text-lg font-medium text-gray-900 text-center truncate w-full block">
                   {classItem.title}
                 </h3>
                 <p className="mt-4 text-sm text-gray-900 text-center">
@@ -163,6 +216,13 @@ const Class = () => {
               </a>
             ))}
           </div>
+          {/* Componente de Paginação */}
+          <Pagination
+            currentPage={currentPageGrid}
+            totalItems={totalClasses}
+            itemsPerPage={classesPerPage}
+            onPageChange={setCurrentPageGrid}
+          />
         </div>
       </div>
     </div>

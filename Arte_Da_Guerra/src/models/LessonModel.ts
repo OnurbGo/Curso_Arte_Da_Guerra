@@ -45,7 +45,7 @@ LessonModel.init(
   {
     sequelize,
     modelName: "LessonModel",
-    tableName: "Lesson",
+    tableName: "Lessons",
   }
 );
 

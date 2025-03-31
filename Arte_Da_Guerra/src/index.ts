@@ -10,6 +10,7 @@ import MethodPaymentRoutes from "./routes/MethodPaymentRouter";
 import LoginRoutes from "./routes/LoginRouter";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import "./models/Association";
 
 const app = express();
 const port = 3000;

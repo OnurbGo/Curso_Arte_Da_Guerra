@@ -1,11 +1,23 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/database";
-import UserModel from "./UserModel";
 
-class TeachersModel extends Model {
-  user_id: number | undefined;
-  biography: string | undefined;
-  expertise: string | undefined;
+export interface TeacherAttributes {
+  id: number;
+  user_id: number;
+  biography: string | null;
+  expertise: string | null;
+}
+
+interface TeacherCreationAttributes extends Optional<TeacherAttributes, "id"> {}
+
+class TeachersModel
+  extends Model<TeacherAttributes, TeacherCreationAttributes>
+  implements TeacherAttributes
+{
+  public id!: number;
+  public user_id!: number;
+  public biography!: string | null;
+  public expertise!: string | null;
 }
 
 TeachersModel.init(
@@ -19,7 +31,7 @@ TeachersModel.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: UserModel,
+        model: "User",
         key: "id",
       },
     },
@@ -38,8 +50,5 @@ TeachersModel.init(
     tableName: "Teachers",
   }
 );
-
-TeachersModel.belongsTo(UserModel, { foreignKey: "user_id" });
-UserModel.hasOne(TeachersModel, { foreignKey: "user_id" });
 
 export default TeachersModel;

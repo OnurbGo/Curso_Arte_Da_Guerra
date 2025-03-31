@@ -1,4 +1,3 @@
-import { log } from "console";
 import { verifyToken } from "../utils/jwt";
 import { NextFunction, Request, Response } from "express";
 
@@ -7,7 +6,9 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
+  const tokenFromHeader = req.header("Authorization")?.replace("Bearer ", "");
+  const tokenFromCookie = req.cookies?.authToken;
+  const token = tokenFromHeader || tokenFromCookie;
 
   if (!token) {
     return res.status(401).json({ error: "Access denied. No token" });
@@ -18,6 +19,8 @@ export const authMiddleware = (
     (req as any).user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ msg: "Acces denied. Invalid Token" + error });
+    return res
+      .status(401)
+      .json({ msg: "Access denied. Invalid Token: " + error });
   }
 };

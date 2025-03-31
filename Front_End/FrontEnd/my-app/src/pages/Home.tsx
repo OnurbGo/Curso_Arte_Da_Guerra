@@ -135,7 +135,7 @@ export default function Home() {
         Selecione um plano para ensinar ou aprender artes marciais online.
       </p>
       <div
-        className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-2"
+        className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-2 lg:gap-x-0" // Removido gap-x no desktop
         data-aos="fade-up"
       >
         {tiers.map((tier, tierIdx) => (
@@ -148,8 +148,8 @@ export default function Home() {
               tier.featured
                 ? ""
                 : tierIdx === 0
-                ? "rounded-t-3xl sm:rounded-b-none lg:rounded-tr-none lg:rounded-bl-3xl"
-                : "sm:rounded-t-none lg:rounded-tr-3xl lg:rounded-bl-none",
+                ? "rounded-t-3xl sm:rounded-b-none lg:rounded-t-3xl lg:rounded-bl-3xl lg:rounded-br-3xl" // Garantido arredondamento para todas as bordas no Estudante
+                : "rounded-t-3xl sm:rounded-b-none lg:rounded-tr-3xl lg:rounded-bl-3xl lg:rounded-br-3xl", // Garantido arredondamento para todas as bordas no Professor
               "rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10"
             )}
           >

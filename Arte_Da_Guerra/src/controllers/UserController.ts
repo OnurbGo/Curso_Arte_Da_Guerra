@@ -16,7 +16,7 @@ export const getUserById = async (
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, CPF, password, type, registration_date } = req.body;
+    const { name, email, CPF, password, type } = req.body;
 
     if (!name || name === "") {
       return res.status(400).json({ error: "Name is Required" });
@@ -44,7 +44,6 @@ export const createUser = async (req: Request, res: Response) => {
       CPF,
       password,
       type,
-      registration_date,
     });
     res.status(201).json(user);
   } catch (error) {
@@ -57,32 +56,19 @@ export const updateUser = async (
   res: Response
 ) => {
   try {
-    const { name, email, CPF, password, type, registration_date } = req.body;
-    const loggedUser = req.body.user;
-    console.log("logged", loggedUser);
+    const { name, email, CPF, password, type } = req.body;
 
     if (!name || name === "") {
       return res.status(400).json({ error: "Name is required" });
     }
-
     if (!email || email === "") {
       return res.status(400).json({ error: "Email is required" });
     }
-
     if (!CPF || CPF === "") {
-      return res.status(400).json({ error: "CPF is Required" });
+      return res.status(400).json({ error: "CPF is required" });
     }
-
-    if (!password || password === "") {
-      return res.status(400).json({ error: "Password is required" });
-    }
-
     if (!type || type === "") {
       return res.status(400).json({ error: "Type is required" });
-    }
-
-    if (!registration_date || registration_date === "") {
-      return res.status(400).json({ error: "Registration_date is required" });
     }
 
     const user = await UserModel.findByPk(req.params.id);
@@ -93,10 +79,11 @@ export const updateUser = async (
     user.name = name;
     user.email = email;
     user.CPF = CPF;
-    user.password = password;
     user.type = type;
-    user.registration_date = registration_date;
-    user.updatedBy = loggedUser.id;
+
+    if (password && password.trim() !== "") {
+      user.password = password;
+    }
 
     await user.save();
     res.status(201).json(user);

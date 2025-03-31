@@ -9,7 +9,6 @@ class PaymentModel extends Model {
   methodpayment_id: number | undefined;
   class_id: number | undefined;
   value: number | undefined;
-  payment_date: Date | undefined;
   status: Enumerator | undefined;
 }
 
@@ -46,10 +45,6 @@ PaymentModel.init(
     },
     value: {
       type: DataTypes.DECIMAL,
-      allowNull: false,
-    },
-    payment_date: {
-      type: DataTypes.DATE,
       allowNull: false,
     },
     status: {

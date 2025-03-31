@@ -51,14 +51,16 @@ export const getLessonsByClassId = async (
 
 export const createLesson = async (req: Request, res: Response) => {
   try {
-    const { class_id, title, description, url_video, url_img } = req.body;
+    const { classId } = req.params;
+    const { title, description, url_video, url_img } = req.body;
 
-    if (!class_id || class_id === "") {
-      return res.status(400).json({ error: "Value is required" });
+    const classExist = await ClassModel.findByPk(classId);
+    if (!classExist) {
+      return res.status(404).json({ error: "Class not found" });
     }
 
     if (!title || title === "") {
-      return res.status(400).json({ error: "Value is required" });
+      return res.status(400).json({ error: "Title is required" });
     }
 
     if (!description || description === "") {
@@ -66,23 +68,24 @@ export const createLesson = async (req: Request, res: Response) => {
     }
 
     if (!url_video || url_video === "") {
-      return res.status(400).json({ error: "Video url is required" });
+      return res.status(400).json({ error: "Video URL is required" });
     }
 
     if (!url_img || url_img === "") {
-      return res.status(400).json({ error: "Image url is required" });
+      return res.status(400).json({ error: "Image URL is required" });
     }
 
     const lesson = await LessonModel.create({
-      class_id,
+      class_id: classId,
       title,
       description,
       url_video,
       url_img,
     });
+
     res.status(201).json(lesson);
   } catch (error) {
-    res.status(500).json("Erro interno no Servidor: " + error);
+    res.status(500).json("Erro interno no servidor: " + error);
   }
 };
 
@@ -165,14 +168,7 @@ export const getClassById = async (
 
 export const createClass = async (req: Request, res: Response) => {
   try {
-    const {
-      master_id,
-      title,
-      description,
-      creation_date,
-      url_img,
-      url_img_banner,
-    } = req.body;
+    const { master_id, title, description, url_img, url_img_banner } = req.body;
 
     if (!master_id || master_id === "") {
       return res.status(400).json({ error: "Title is required" });
@@ -184,10 +180,6 @@ export const createClass = async (req: Request, res: Response) => {
 
     if (!description || description === "") {
       return res.status(400).json({ error: "Description is required" });
-    }
-
-    if (!creation_date || creation_date === "") {
-      return res.status(400).json({ error: "Creation date is required" });
     }
 
     if (!url_img || url_img === "") {
@@ -202,7 +194,6 @@ export const createClass = async (req: Request, res: Response) => {
       master_id,
       title,
       description,
-      creation_date,
       url_img,
       url_img_banner,
     });
@@ -217,7 +208,7 @@ export const updateClass = async (
   res: Response
 ) => {
   try {
-    const { master_id, title, description, creation_date } = req.body;
+    const { master_id, title, description } = req.body;
     if (!master_id || master_id === "") {
       return res.status(400).json({ error: "Title is required" });
     }
@@ -230,10 +221,6 @@ export const updateClass = async (
       return res.status(400).json({ error: "Description is required" });
     }
 
-    if (!creation_date || creation_date === "") {
-      return res.status(400).json({ error: "Creation_date is required" });
-    }
-
     const Class = await ClassModel.findByPk(req.params.id);
     if (!Class) {
       return res.status(404).json({ error: "Class not found" });
@@ -241,7 +228,6 @@ export const updateClass = async (
 
     Class.title = title;
     Class.description = description;
-    Class.creation_date = creation_date;
 
     await Class.save();
     res.status(201).json(Class);

@@ -8,6 +8,8 @@ export default function RegisterUser() {
     CPF: "",
     password: "",
     type: "",
+    biography: "",
+    expertise: "",
   });
 
   const [error, setError] = useState("");
@@ -15,13 +17,11 @@ export default function RegisterUser() {
   const [errorAlert, setErrorAlert] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
 
-  // regex email
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // regex cpf
   const validateCPF = (cpf) => {
     const cpfRegex = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
     return cpfRegex.test(cpf);
@@ -35,7 +35,6 @@ export default function RegisterUser() {
     const password = e.target.value;
     setFormData({ ...formData, password });
 
-    // Verificar força da senha
     if (password.length < 6) {
       setPasswordStrength("Fraca");
     } else if (
@@ -69,27 +68,44 @@ export default function RegisterUser() {
       return;
     }
 
-    // Verificar força da senha
     if (passwordStrength === "Fraca") {
       setError("A senha é fraca. Por favor, use uma senha mais forte.");
       setErrorAlert(true);
       return;
     }
 
+    if (formData.type === "teacher") {
+      if (!formData.biography.trim() || !formData.expertise.trim()) {
+        setError(
+          "Para professores, os campos Biografia e Especialidade são obrigatórios."
+        );
+        setErrorAlert(true);
+        return;
+      }
+    }
+
     try {
-      await axios.post("http://localhost:3000/users", formData);
+      const userResponse = await axios.post(
+        "http://localhost:3000/users",
+        formData
+      );
       setSuccess(true);
+
+      if (formData.type === "teacher") {
+        await axios.post("http://localhost:3000/teachers", {
+          user_id: userResponse.data.id,
+          biography: formData.biography,
+          expertise: formData.expertise,
+        });
+      }
     } catch (error) {
       setErrorAlert(true);
       if (axios.isAxiosError(error)) {
-        console.error(
-          "Erro ao registrar:",
-          error.response?.data || error.message
+        setError(
+          error.response?.data?.message || "Erro ao registrar. Tente novamente."
         );
-        setError(error.response?.data?.message);
       } else {
-        console.error("Erro inesperado:", error);
-        setError("Erro ao registrar. Tente novamente.");
+        setError("Erro inesperado. Tente novamente.");
       }
     }
   };
@@ -161,10 +177,7 @@ export default function RegisterUser() {
               className="block w-full rounded-md border-gray-300 px-3 py-1.5 text-gray-900 shadow-sm focus:outline-indigo-600"
             />
             <div
-              data-hs-strong-password='{
-                "target": "#hs-strong-password-base",
-                "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-blue-500 opacity-50 mx-1"
-              }'
+              data-hs-strong-password='{"target": "#hs-strong-password-base", "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-blue-500 opacity-50 mx-1"}'
               className="flex mt-2 -mx-1"
             ></div>
             {passwordStrength && (
@@ -197,6 +210,34 @@ export default function RegisterUser() {
               <option value="teacher">Professor</option>
             </select>
           </div>
+
+          {formData.type === "teacher" && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-900">
+                  Biografia
+                </label>
+                <textarea
+                  name="biography"
+                  required
+                  onChange={handleChange}
+                  className="block w-full rounded-md border-gray-300 px-3 py-1.5 text-gray-900 shadow-sm focus:outline-indigo-600"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-900">
+                  Especialidade
+                </label>
+                <input
+                  name="expertise"
+                  type="text"
+                  required
+                  onChange={handleChange}
+                  className="block w-full rounded-md border-gray-300 px-3 py-1.5 text-gray-900 shadow-sm focus:outline-indigo-600"
+                />
+              </div>
+            </>
+          )}
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 

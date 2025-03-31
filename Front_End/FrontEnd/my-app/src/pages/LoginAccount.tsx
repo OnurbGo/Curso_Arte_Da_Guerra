@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
-import Cookies from "js-cookie";
 
 export default function LoginAccount() {
   const [email, setEmail] = useState("");
@@ -24,11 +23,8 @@ export default function LoginAccount() {
         { withCredentials: true }
       );
 
-      Cookies.set("authToken", data.token);
-
-      login();
+      login(data.token);
       setSuccess(true);
-
       navigate("/");
     } catch (error) {
       console.error("Erro no login:", error);
@@ -48,7 +44,6 @@ export default function LoginAccount() {
           Logar em sua conta
         </h2>
       </div>
-
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -68,7 +63,6 @@ export default function LoginAccount() {
               className="block w-full rounded-md px-3 py-1.5 text-base text-gray-900 focus:outline-indigo-600 sm:text-sm"
             />
           </div>
-
           <div>
             <label
               htmlFor="password"
@@ -85,24 +79,13 @@ export default function LoginAccount() {
               onChange={(e) => setPassword(e.target.value)}
               className="block w-full rounded-md px-3 py-1.5 text-base text-gray-900 focus:outline-indigo-600 sm:text-sm"
             />
-            <p className="mt-10 text-center text-sm/6 text-gray-500">
-              Não Tem Uma conta?{" "}
-              <a
-                href="/createaccount"
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
-              >
-                Crie Sua conta aqui
-              </a>
-            </p>
           </div>
-
           {error && <p className="text-red-500 text-sm">{error}</p>}
           {success && (
             <p className="text-green-500 text-sm">
               Login realizado com sucesso!
             </p>
           )}
-
           <div>
             <button
               type="submit"
@@ -112,6 +95,15 @@ export default function LoginAccount() {
             </button>
           </div>
         </form>
+        <p className="mt-10 text-center text-sm text-gray-500">
+          Não Tem Uma conta?{" "}
+          <a
+            href="/createaccount"
+            className="font-semibold text-indigo-600 hover:text-indigo-500"
+          >
+            Crie Sua conta aqui
+          </a>
+        </p>
       </div>
     </div>
   );

@@ -12,26 +12,32 @@ import Lesson from "./pages/Lesson";
 import { AuthProvider } from "./utils/AuthContext";
 import PrivateRoute from "./utils/PrivateRoute";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
+import MyCourses from "./pages/MyCourses";
 
 function App() {
   return (
     <BrowserRouter>
-      {/* Envolva toda a aplicação com o AuthProvider */}
       <AuthProvider>
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/loginaccount" element={<LoginAccount />} />
-          <Route path="/createaccount" element={<CreateAccount />} />
-          {/* Outras rotas aqui */}
-          <Route path="*" element={<NotFound />} /> {/* Rotas protegidas */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/class" element={<Class />} />
-            <Route path="/course/:id" element={<Course />} />
-            <Route path="/lesson/:id" element={<Lesson />} />
-          </Route>
-        </Routes>
-        <Footer />
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/loginaccount" element={<LoginAccount />} />
+              <Route path="/createaccount" element={<CreateAccount />} />
+              <Route path="*" element={<NotFound />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="/class" element={<Class />} />
+                <Route path="/course/:id" element={<Course />} />
+                <Route path="/lesson/:id" element={<Lesson />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/mycourses" element={<MyCourses />} />
+              </Route>
+            </Routes>
+          </main>
+          <Footer />
+        </div>
       </AuthProvider>
     </BrowserRouter>
   );

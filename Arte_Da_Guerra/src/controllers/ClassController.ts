@@ -16,14 +16,7 @@ export const getClassById = async (
 
 export const createClass = async (req: Request, res: Response) => {
   try {
-    const {
-      master_id,
-      title,
-      description,
-      creation_date,
-      url_img,
-      url_img_banner,
-    } = req.body;
+    const { master_id, title, description, url_img, url_img_banner } = req.body;
 
     if (!master_id || master_id === "") {
       return res.status(400).json({ error: "Title is required" });
@@ -35,10 +28,6 @@ export const createClass = async (req: Request, res: Response) => {
 
     if (!description || description === "") {
       return res.status(400).json({ error: "Description is required" });
-    }
-
-    if (!creation_date || creation_date === "") {
-      return res.status(400).json({ error: "Creation date is required" });
     }
 
     if (!url_img || url_img === "") {
@@ -53,7 +42,6 @@ export const createClass = async (req: Request, res: Response) => {
       master_id,
       title,
       description,
-      creation_date,
       url_img,
       url_img_banner,
     });
@@ -68,7 +56,7 @@ export const updateClass = async (
   res: Response
 ) => {
   try {
-    const { master_id, title, description, creation_date } = req.body;
+    const { master_id, title, description } = req.body;
     if (!master_id || master_id === "") {
       return res.status(400).json({ error: "Title is required" });
     }
@@ -81,10 +69,6 @@ export const updateClass = async (
       return res.status(400).json({ error: "Description is required" });
     }
 
-    if (!creation_date || creation_date === "") {
-      return res.status(400).json({ error: "Creation_date is required" });
-    }
-
     const Class = await ClassModel.findByPk(req.params.id);
     if (!Class) {
       return res.status(404).json({ error: "Class not found" });
@@ -92,7 +76,6 @@ export const updateClass = async (
 
     Class.title = title;
     Class.description = description;
-    Class.creation_date = creation_date;
 
     await Class.save();
     res.status(201).json(Class);

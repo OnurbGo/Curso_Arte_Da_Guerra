@@ -1,26 +1,39 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import Cookies from "js-cookie";
 
-const AuthContext = createContext(null);
+type AuthContextType = {
+  isAuthenticated: boolean;
+  login: (token: string) => void;
+  logout: () => void;
+};
 
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    () => !!Cookies.get("authToken")
+  );
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      setIsAuthenticated(true);
-    }
+    const token = Cookies.get("authToken");
+    setIsAuthenticated(!!token);
   }, []);
 
-  const login = (token) => {
-    localStorage.setItem("authToken", token);
+  const login = (token: string) => {
+    Cookies.set("authToken", token, { expires: 7, path: "/" });
     setIsAuthenticated(true);
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
+    Cookies.remove("authToken", { path: "/" });
     setIsAuthenticated(false);
   };
 
@@ -29,4 +42,12 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+  }
+  return context;
 };

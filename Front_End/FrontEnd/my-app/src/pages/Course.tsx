@@ -3,20 +3,22 @@ import { useParams, useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import LoadingSpinner from "../components/LoadingSpinner";
+import Pagination from "../components/Pagination";
 
 const Course = () => {
   const { id } = useParams();
-  const [lessons, setLessons] = useState([]);
-  const [courseDetails, setCourseDetails] = useState(null);
-  const [teacher, setTeacher] = useState(null);
+  const [lessons, setLessons] = useState<any[]>([]);
+  const [courseDetails, setCourseDetails] = useState<any>(null);
+  const [teacher, setTeacher] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const lessonsPerPage = 8;
   const navigate = useNavigate();
 
-  // Função para buscar um único professor com token de autenticação
-  const fetchTeacher = async (teacherId) => {
+  // Funções de fetch...
+  const fetchTeacher = async (teacherId: string | number) => {
     try {
-      // Recupere o token de onde estiver armazenado (ex.: localStorage)
       const token = localStorage.getItem("token");
       const response = await fetch(
         `http://localhost:3000/teachers/${teacherId}`,
@@ -26,9 +28,7 @@ const Course = () => {
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Falha ao buscar o professor");
-      }
+      if (!response.ok) throw new Error("Falha ao buscar o professor");
       const data = await response.json();
       setTeacher(data);
     } catch (error) {
@@ -36,31 +36,24 @@ const Course = () => {
     }
   };
 
-  // Busca detalhes do curso usando o endpoint /class/:id
   const fetchCourseDetails = async () => {
     try {
       const response = await fetch(`http://localhost:3000/class/${id}`);
-      if (!response.ok) {
-        throw new Error("Falha ao buscar os detalhes do curso");
-      }
+      if (!response.ok) throw new Error("Falha ao buscar os detalhes do curso");
       const data = await response.json();
       setCourseDetails(data);
-      // Usa o master_id (chave estrangeira que referencia o professor)
       fetchTeacher(data.master_id);
     } catch (error) {
       setError("Erro ao carregar os detalhes do curso");
     }
   };
 
-  // Busca as lições associadas à aula (curso)
   const fetchLessons = async () => {
     try {
       const response = await fetch(
         `http://localhost:3000/lessons?class_id=${id}`
       );
-      if (!response.ok) {
-        throw new Error("Falha ao buscar as lições");
-      }
+      if (!response.ok) throw new Error("Falha ao buscar as lições");
       const data = await response.json();
       setLessons(data);
     } catch (error) {
@@ -80,6 +73,12 @@ const Course = () => {
       AOS.refresh();
     };
   }, [id]);
+
+  const totalLessons = lessons.length;
+  const currentLessons = lessons.slice(
+    (currentPage - 1) * lessonsPerPage,
+    currentPage * lessonsPerPage
+  );
 
   if (loading || !courseDetails || !teacher) {
     return (
@@ -104,7 +103,7 @@ const Course = () => {
         className="bg-gray-100 p-8 rounded-lg shadow-md mb-12"
         data-aos="fade-up"
       >
-        <h1 className="text-4xl font-bold text-gray-800">
+        <h1 className="text-4xl font-bold text-gray-800 break-words whitespace-normal">
           {courseDetails.title}
         </h1>
         <p className="text-lg text-gray-600 mt-4">
@@ -151,13 +150,13 @@ const Course = () => {
       >
         Lições do Curso
       </h2>
-      {lessons.length === 0 ? (
+      {currentLessons.length === 0 ? (
         <p className="text-center text-gray-600">
           Não há lições disponíveis para este curso.
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {lessons.map((lesson) => (
+          {currentLessons.map((lesson) => (
             <div
               key={lesson.id}
               className="border rounded-lg p-4 flex flex-col items-center bg-white shadow-lg transform hover:scale-105 transition-all duration-300"
@@ -181,6 +180,14 @@ const Course = () => {
           ))}
         </div>
       )}
+
+      {/* Componente de Paginação */}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={totalLessons}
+        itemsPerPage={lessonsPerPage}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

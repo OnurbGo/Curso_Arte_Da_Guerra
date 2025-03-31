@@ -6,7 +6,6 @@ const sequelize = new Sequelize(
   isTest ? "test" : "Cursos_Arte_Da_Guerra",
   "root",
   "",
-
   {
     host: "localhost",
     dialect: "mysql",

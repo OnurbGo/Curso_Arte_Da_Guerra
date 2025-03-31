@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 
 type AuthContextType = {
   isAuthenticated: boolean;
-  login: () => void;
+  login: (token: string) => void;
   logout: () => void;
 };
 
@@ -22,20 +22,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     const token = Cookies.get("authToken");
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
+    setIsAuthenticated(!!token);
   }, []);
 
-  const login = () => {
+  const login = (token: string) => {
+    Cookies.set("authToken", token, { expires: 7, path: "/" });
     setIsAuthenticated(true);
   };
 
   const logout = () => {
+    Cookies.remove("authToken", { path: "/" });
     setIsAuthenticated(false);
-    Cookies.remove("authToken");
   };
 
   return (
@@ -48,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
   }
   return context;
 };
