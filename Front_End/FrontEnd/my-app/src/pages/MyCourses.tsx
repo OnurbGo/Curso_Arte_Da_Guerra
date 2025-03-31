@@ -32,8 +32,15 @@ const MyCourses: React.FC = () => {
   const [classes, setClasses] = useState<Class[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [teacherId, setTeacherId] = useState<number | null>(null);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
+  const [messageTab, setMessageTab] = useState<"course" | "lesson" | null>(
+    null
+  );
 
+  // Estados para criação de curso e lição
   const [newClassTitle, setNewClassTitle] = useState("");
   const [newClassDescription, setNewClassDescription] = useState("");
   const [newClassImg, setNewClassImg] = useState("");
@@ -50,13 +57,29 @@ const MyCourses: React.FC = () => {
   const [newLessonUrlVideo, setNewLessonUrlVideo] = useState("");
   const [newLessonUrlImg, setNewLessonUrlImg] = useState("");
 
+  // Estados para edição de curso
+  const [editingCourseId, setEditingCourseId] = useState<number | null>(null);
+  const [editCourseTitle, setEditCourseTitle] = useState("");
+  const [editCourseDescription, setEditCourseDescription] = useState("");
+  const [editCourseImg, setEditCourseImg] = useState("");
+  const [editCourseBanner, setEditCourseBanner] = useState("");
+
+  // Estados para edição de lição
+  const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
+  const [editLessonTitle, setEditLessonTitle] = useState("");
+  const [editLessonDescription, setEditLessonDescription] = useState("");
+  const [editLessonUrlVideo, setEditLessonUrlVideo] = useState("");
+  const [editLessonUrlImg, setEditLessonUrlImg] = useState("");
+
   useEffect(() => {
     const token = Cookies.get("authToken");
     if (token) {
       try {
         const decoded = jwt_decode<DecodedToken>(token);
         if (decoded.user.type !== "teacher") {
-          setMessage("Apenas professores podem acessar esta página.");
+          setMessage("Apenas professores podem acessar esta página");
+          setMessageType("error");
+          setMessageTab("course");
           return;
         }
         setTeacherId(decoded.user.id);
@@ -99,9 +122,13 @@ const MyCourses: React.FC = () => {
       setNewClassImg("");
       setNewClassBanner("");
       setMessage("Curso criado com sucesso!");
+      setMessageType("success");
+      setMessageTab("course");
     } catch (error) {
       console.error("Erro ao criar curso:", error);
-      setMessage("Erro ao criar curso.");
+      setMessage("Erro ao criar curso");
+      setMessageType("error");
+      setMessageTab("course");
     }
   };
 
@@ -114,10 +141,12 @@ const MyCourses: React.FC = () => {
       setLessons(res.data);
       setSelectedClassForLessons(classId);
       setSelectedClassForLessonCreation(null);
-      setMessage("");
+      setMessage(null);
     } catch (error) {
       console.error("Erro ao buscar lições:", error);
-      setMessage("Erro ao buscar lições.");
+      setMessage("Erro ao buscar lições");
+      setMessageType("error");
+      setMessageTab("lesson");
     }
   };
 
@@ -149,6 +178,8 @@ const MyCourses: React.FC = () => {
         { withCredentials: true }
       );
       setMessage("Lição criada com sucesso!");
+      setMessageType("success");
+      setMessageTab("lesson");
       if (selectedClassForLessons === classId) {
         setLessons([...lessons, res.data]);
       }
@@ -158,7 +189,9 @@ const MyCourses: React.FC = () => {
       setNewLessonUrlImg("");
     } catch (error) {
       console.error("Erro ao criar lição:", error);
-      setMessage("Erro ao criar lição.");
+      setMessage("Erro ao criar lição");
+      setMessageType("error");
+      setMessageTab("lesson");
     }
   };
 
@@ -169,9 +202,13 @@ const MyCourses: React.FC = () => {
       });
       setLessons(lessons.filter((l) => l.id !== lessonId));
       setMessage("Lição deletada com sucesso!");
+      setMessageType("success");
+      setMessageTab("lesson");
     } catch (error) {
       console.error("Erro ao deletar lição:", error);
-      setMessage("Erro ao deletar lição.");
+      setMessage("Erro ao deletar lição");
+      setMessageType("error");
+      setMessageTab("lesson");
     }
   };
 
@@ -182,9 +219,117 @@ const MyCourses: React.FC = () => {
       });
       setClasses(classes.filter((c) => c.id !== courseId));
       setMessage("Curso deletado com sucesso!");
+      setMessageType("success");
+      setMessageTab("course");
     } catch (error) {
       console.error("Erro ao deletar curso:", error);
-      setMessage("Erro ao deletar curso.");
+      setMessage("Erro ao deletar curso");
+      setMessageType("error");
+      setMessageTab("course");
+    }
+  };
+
+  // FUNÇÕES PARA EDITAR CURSO
+  const handleStartEditCourse = (course: Class) => {
+    setEditingCourseId(course.id);
+    setEditCourseTitle(course.title);
+    setEditCourseDescription(course.description);
+    setEditCourseImg(course.url_img);
+    setEditCourseBanner(course.url_img_banner);
+  };
+
+  const handleCancelEditCourse = () => {
+    setEditingCourseId(null);
+    setEditCourseTitle("");
+    setEditCourseDescription("");
+    setEditCourseImg("");
+    setEditCourseBanner("");
+  };
+
+  const handleSubmitEditCourse = async (
+    e: React.FormEvent<HTMLFormElement>,
+    courseId: number
+  ) => {
+    e.preventDefault();
+    try {
+      const updatedCourse = {
+        master_id: teacherId,
+        title: editCourseTitle,
+        description: editCourseDescription,
+        url_img: editCourseImg,
+        url_img_banner: editCourseBanner,
+      };
+      const res = await axios.put(
+        `http://localhost:3000/class/${courseId}`,
+        updatedCourse,
+        {
+          withCredentials: true,
+        }
+      );
+      setClasses(
+        classes.map((course) => (course.id === courseId ? res.data : course))
+      );
+      setMessage("Curso atualizado com sucesso!");
+      setMessageType("success");
+      setMessageTab("course");
+      handleCancelEditCourse();
+    } catch (error) {
+      console.error("Erro ao atualizar curso:", error);
+      setMessage("Erro ao atualizar curso");
+      setMessageType("error");
+      setMessageTab("course");
+    }
+  };
+
+  // FUNÇÕES PARA EDITAR LIÇÃO
+  const handleStartEditLesson = (lesson: Lesson) => {
+    setEditingLessonId(lesson.id);
+    setEditLessonTitle(lesson.title);
+    setEditLessonDescription(lesson.description);
+    setEditLessonUrlVideo(lesson.url_video);
+    setEditLessonUrlImg(lesson.url_img);
+  };
+
+  const handleCancelEditLesson = () => {
+    setEditingLessonId(null);
+    setEditLessonTitle("");
+    setEditLessonDescription("");
+    setEditLessonUrlVideo("");
+    setEditLessonUrlImg("");
+  };
+
+  const handleSubmitEditLesson = async (
+    e: React.FormEvent<HTMLFormElement>,
+    lessonId: number
+  ) => {
+    e.preventDefault();
+    try {
+      const updatedLesson = {
+        class_id: selectedClassForLessons, // mantém o valor atual
+        title: editLessonTitle,
+        description: editLessonDescription,
+        url_video: editLessonUrlVideo,
+        url_img: editLessonUrlImg,
+      };
+      const res = await axios.put(
+        `http://localhost:3000/lessons/${lessonId}`,
+        updatedLesson,
+        {
+          withCredentials: true,
+        }
+      );
+      setLessons(
+        lessons.map((lesson) => (lesson.id === lessonId ? res.data : lesson))
+      );
+      setMessage("Lição atualizada com sucesso!");
+      setMessageType("success");
+      setMessageTab("lesson");
+      handleCancelEditLesson();
+    } catch (error) {
+      console.error("Erro ao atualizar lição:", error);
+      setMessage("Erro ao atualizar lição");
+      setMessageType("error");
+      setMessageTab("lesson");
     }
   };
 
@@ -193,7 +338,25 @@ const MyCourses: React.FC = () => {
       <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
         Meus Cursos
       </h1>
-      {message && <p className="text-center text-red-600 mb-4">{message}</p>}
+
+      {message && messageTab === "course" && (
+        <p
+          className={`text-center ${
+            messageType === "error" ? "text-red-600" : "text-green-600"
+          } mb-4`}
+        >
+          {message}
+        </p>
+      )}
+      {message && messageTab === "lesson" && (
+        <p
+          className={`text-center ${
+            messageType === "error" ? "text-red-600" : "text-green-600"
+          } mb-4`}
+        >
+          {message}
+        </p>
+      )}
 
       {/* Formulário para criação de novo curso */}
       <section className="mb-10">
@@ -258,14 +421,15 @@ const MyCourses: React.FC = () => {
                 <h3 className="text-xl font-semibold text-gray-800 text-center">
                   {course.title}
                 </h3>
+                {/* Alteramos o src para usar url_img_banner */}
                 <img
-                  src={course.url_img}
+                  src={course.url_img_banner}
                   alt={course.title}
                   className="w-1/3 h-auto rounded-lg my-4 object-cover"
                 />
               </div>
               <p className="text-gray-600 mb-4">{course.description}</p>
-              <div className="flex justify-center space-x-4">
+              <div className="flex flex-wrap justify-center space-x-4 mb-4">
                 <button
                   onClick={() => handleViewLessons(course.id)}
                   className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
@@ -290,9 +454,72 @@ const MyCourses: React.FC = () => {
                 >
                   Excluir Curso
                 </button>
+                <button
+                  onClick={() => handleStartEditCourse(course)}
+                  className="bg-yellow-500 text-white py-2 px-6 rounded-lg hover:bg-yellow-600 transition duration-300"
+                >
+                  Editar Curso
+                </button>
               </div>
 
-              {/* Exibe as lições do curso (quando selecionado pelo botao "Ver Lições") */}
+              {editingCourseId === course.id && (
+                <form
+                  onSubmit={(e) => handleSubmitEditCourse(e, course.id)}
+                  className="mb-4 border-t pt-4"
+                >
+                  <h3 className="text-xl font-semibold mb-2 text-gray-700">
+                    Editar Curso
+                  </h3>
+                  <input
+                    type="text"
+                    placeholder="Título do Curso"
+                    value={editCourseTitle}
+                    onChange={(e) => setEditCourseTitle(e.target.value)}
+                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <textarea
+                    placeholder="Descrição do Curso"
+                    value={editCourseDescription}
+                    onChange={(e) => setEditCourseDescription(e.target.value)}
+                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  ></textarea>
+                  <input
+                    type="text"
+                    placeholder="URL da Imagem"
+                    value={editCourseImg}
+                    onChange={(e) => setEditCourseImg(e.target.value)}
+                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="URL do Banner"
+                    value={editCourseBanner}
+                    onChange={(e) => setEditCourseBanner(e.target.value)}
+                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <div className="flex justify-center space-x-4 mt-2">
+                    <button
+                      type="submit"
+                      className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
+                    >
+                      Salvar Alterações
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelEditCourse}
+                      className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Exibe as lições do curso */}
               {selectedClassForLessons === course.id && (
                 <div className="mt-6">
                   <h3 className="text-xl font-semibold mb-2 text-gray-700">
@@ -308,22 +535,97 @@ const MyCourses: React.FC = () => {
                         key={lesson.id}
                         className="border p-4 mb-3 rounded-lg shadow-sm"
                       >
-                        <div className="flex justify-between items-center ">
-                          <div>
-                            <h4 className="text-lg font-bold text-gray-800">
-                              {lesson.title}
-                            </h4>
-                            <p className="text-gray-600">
-                              {lesson.description}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => handleDeleteLesson(lesson.id)}
-                            className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition duration-300"
+                        {editingLessonId === lesson.id ? (
+                          <form
+                            onSubmit={(e) =>
+                              handleSubmitEditLesson(e, lesson.id)
+                            }
                           >
-                            Excluir
-                          </button>
-                        </div>
+                            <input
+                              type="text"
+                              placeholder="Título da Lição"
+                              value={editLessonTitle}
+                              onChange={(e) =>
+                                setEditLessonTitle(e.target.value)
+                              }
+                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                            <textarea
+                              placeholder="Descrição da Lição"
+                              value={editLessonDescription}
+                              onChange={(e) =>
+                                setEditLessonDescription(e.target.value)
+                              }
+                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            ></textarea>
+                            <input
+                              type="text"
+                              placeholder="URL do Vídeo"
+                              value={editLessonUrlVideo}
+                              onChange={(e) =>
+                                setEditLessonUrlVideo(e.target.value)
+                              }
+                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                            <input
+                              type="text"
+                              placeholder="URL da Imagem"
+                              value={editLessonUrlImg}
+                              onChange={(e) =>
+                                setEditLessonUrlImg(e.target.value)
+                              }
+                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              required
+                            />
+                            <div className="flex justify-center space-x-4 mt-2">
+                              <button
+                                type="submit"
+                                className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
+                              >
+                                Salvar Alterações
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleCancelEditLesson}
+                                className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </form>
+                        ) : (
+                          <div className="flex justify-between items-center">
+                            {/* Container do título e descrição com flex-1 e truncamento para não quebrar o layout */}
+                            <div className="flex-1 overflow-hidden">
+                              <h4 className="text-lg font-bold text-gray-800">
+                                {lesson.title}
+                              </h4>
+                              <p
+                                className="text-gray-600 truncate"
+                                title={lesson.description}
+                              >
+                                {lesson.description}
+                              </p>
+                            </div>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleStartEditLesson(lesson)}
+                                className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-300"
+                              >
+                                Editar Lição
+                              </button>
+                              <button
+                                onClick={() => handleDeleteLesson(lesson.id)}
+                                className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition duration-300"
+                              >
+                                Excluir
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         <a
                           href={lesson.url_video}
                           target="_blank"
@@ -338,7 +640,7 @@ const MyCourses: React.FC = () => {
                 </div>
               )}
 
-              {/* exibe o formulario de criação de lição logo abaixo do curso, quando selecionado */}
+              {/* Formulário de criação de nova lição */}
               {selectedClassForLessonCreation === course.id && (
                 <div className="mt-6 border-t pt-4">
                   <h3 className="text-xl font-semibold mb-2 text-gray-700">

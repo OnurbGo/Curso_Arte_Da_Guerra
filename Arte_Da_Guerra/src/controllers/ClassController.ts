@@ -56,17 +56,22 @@ export const updateClass = async (
   res: Response
 ) => {
   try {
-    const { master_id, title, description } = req.body;
-    if (!master_id || master_id === "") {
-      return res.status(400).json({ error: "Title is required" });
-    }
+    const { master_id, title, description, url_img, url_img_banner } = req.body;
 
+    if (!master_id || master_id === "") {
+      return res.status(400).json({ error: "Master ID is required" });
+    }
     if (!title || title === "") {
       return res.status(400).json({ error: "Title is required" });
     }
-
     if (!description || description === "") {
       return res.status(400).json({ error: "Description is required" });
+    }
+    if (!url_img || url_img === "") {
+      return res.status(400).json({ error: "Url Image is required" });
+    }
+    if (!url_img_banner || url_img_banner === "") {
+      return res.status(400).json({ error: "Url banner Image is required" });
     }
 
     const Class = await ClassModel.findByPk(req.params.id);
@@ -74,8 +79,11 @@ export const updateClass = async (
       return res.status(404).json({ error: "Class not found" });
     }
 
+    // Atualiza os campos, incluindo as URLs da imagem e do banner
     Class.title = title;
     Class.description = description;
+    Class.url_img = url_img;
+    Class.url_img_banner = url_img_banner;
 
     await Class.save();
     res.status(201).json(Class);
