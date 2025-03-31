@@ -1,4 +1,3 @@
-// pages/Class.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
@@ -63,14 +62,12 @@ const Class: React.FC = () => {
     navigate(`/course/${id}`);
   };
 
-  // paginação para a grid de classes
   const totalClasses = filteredClasses.length;
   const currentClasses = filteredClasses.slice(
     (currentPageGrid - 1) * classesPerPage,
     currentPageGrid * classesPerPage
   );
 
-  // fução de busca com filtro
   const handleSearch = (query: string, field: string) => {
     if (!query.trim()) {
       setFilteredClasses(classes);
@@ -96,13 +93,13 @@ const Class: React.FC = () => {
 
   return (
     <div>
-      {/* Carousel */}
+      {/* Carrousel */}
       <div
         id="default-carousel"
         className="relative w-full"
         data-carousel="slide"
       >
-        <div className="relative h-56 overflow-hidden rounded-lg md:h-96">
+        <div className="relative h-64 sm:h-80 md:h-96 lg:h-128 overflow-hidden rounded-lg">
           {classes.map((product, index) => (
             <div
               key={index}
@@ -114,7 +111,7 @@ const Class: React.FC = () => {
               <img
                 src={product.url_img_banner}
                 alt={product.title}
-                className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 rounded-none"
+                className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 rounded-none object-top"
               />
             </div>
           ))}

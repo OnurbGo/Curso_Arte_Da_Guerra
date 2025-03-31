@@ -40,7 +40,6 @@ const MyCourses: React.FC = () => {
     null
   );
 
-  // Estados para criação de curso e lição
   const [newClassTitle, setNewClassTitle] = useState("");
   const [newClassDescription, setNewClassDescription] = useState("");
   const [newClassImg, setNewClassImg] = useState("");
@@ -57,14 +56,12 @@ const MyCourses: React.FC = () => {
   const [newLessonUrlVideo, setNewLessonUrlVideo] = useState("");
   const [newLessonUrlImg, setNewLessonUrlImg] = useState("");
 
-  // Estados para edição de curso
   const [editingCourseId, setEditingCourseId] = useState<number | null>(null);
   const [editCourseTitle, setEditCourseTitle] = useState("");
   const [editCourseDescription, setEditCourseDescription] = useState("");
   const [editCourseImg, setEditCourseImg] = useState("");
   const [editCourseBanner, setEditCourseBanner] = useState("");
 
-  // Estados para edição de lição
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [editLessonTitle, setEditLessonTitle] = useState("");
   const [editLessonDescription, setEditLessonDescription] = useState("");
@@ -132,7 +129,13 @@ const MyCourses: React.FC = () => {
     }
   };
 
+  // Função alterada para comportamento de toggle
   const handleViewLessons = async (classId: number) => {
+    if (selectedClassForLessons === classId) {
+      setSelectedClassForLessons(null);
+      setLessons([]);
+      return;
+    }
     try {
       const res = await axios.get(
         `http://localhost:3000/lessons?class_id=${classId}`,
@@ -229,7 +232,6 @@ const MyCourses: React.FC = () => {
     }
   };
 
-  // FUNÇÕES PARA EDITAR CURSO
   const handleStartEditCourse = (course: Class) => {
     setEditingCourseId(course.id);
     setEditCourseTitle(course.title);
@@ -281,7 +283,6 @@ const MyCourses: React.FC = () => {
     }
   };
 
-  // FUNÇÕES PARA EDITAR LIÇÃO
   const handleStartEditLesson = (lesson: Lesson) => {
     setEditingLessonId(lesson.id);
     setEditLessonTitle(lesson.title);
@@ -305,7 +306,7 @@ const MyCourses: React.FC = () => {
     e.preventDefault();
     try {
       const updatedLesson = {
-        class_id: selectedClassForLessons, // mantém o valor atual
+        class_id: selectedClassForLessons,
         title: editLessonTitle,
         description: editLessonDescription,
         url_video: editLessonUrlVideo,
@@ -421,7 +422,6 @@ const MyCourses: React.FC = () => {
                 <h3 className="text-xl font-semibold text-gray-800 text-center">
                   {course.title}
                 </h3>
-                {/* Alteramos o src para usar url_img_banner */}
                 <img
                   src={course.url_img_banner}
                   alt={course.title}
@@ -429,7 +429,7 @@ const MyCourses: React.FC = () => {
                 />
               </div>
               <p className="text-gray-600 mb-4">{course.description}</p>
-              <div className="flex flex-wrap justify-center space-x-4 mb-4">
+              <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
                 <button
                   onClick={() => handleViewLessons(course.id)}
                   className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
@@ -598,7 +598,6 @@ const MyCourses: React.FC = () => {
                           </form>
                         ) : (
                           <div className="flex justify-between items-center">
-                            {/* Container do título e descrição com flex-1 e truncamento para não quebrar o layout */}
                             <div className="flex-1 overflow-hidden">
                               <h4 className="text-lg font-bold text-gray-800">
                                 {lesson.title}
@@ -610,7 +609,7 @@ const MyCourses: React.FC = () => {
                                 {lesson.description}
                               </p>
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                               <button
                                 onClick={() => handleStartEditLesson(lesson)}
                                 className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-300"

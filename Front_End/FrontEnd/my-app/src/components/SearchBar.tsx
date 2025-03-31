@@ -57,8 +57,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ options, onSearch }) => {
     >
       {/* Barra de pesquisa */}
       <div className="flex flex-col sm:flex-row items-center sm:space-x-2 w-full">
-        {/* Dropdown - centralizado no mobile */}
-        <div className="relative w-full sm:w-auto flex justify-center sm:justify-start">
+        {/* Dropdown */}
+        <div className="relative w-full sm:w-auto flex justify-center sm:justify-start mb-6 sm:mb-0">
           <button
             id="dropdownButton"
             className="flex items-center px-3 py-2 border border-gray-300 rounded-md bg-white text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap"
