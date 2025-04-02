@@ -35,6 +35,29 @@ export default function RegisterUser() {
     return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   };
 
+  // Função que valida a senha conforme os critérios:
+  // Pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial.
+  const validatePassword = (password) => {
+    const minLength = 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return (
+      password.length >= minLength &&
+      hasUppercase &&
+      hasNumber &&
+      hasSpecialChar
+    );
+  };
+
+  // Função para avaliar a força da senha (apenas para feedback visual)
+  const evaluatePasswordStrength = (password) => {
+    if (!validatePassword(password)) {
+      return "Fraca";
+    }
+    return "Forte";
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -42,18 +65,7 @@ export default function RegisterUser() {
   const handlePasswordChange = (e) => {
     const password = e.target.value;
     setFormData({ ...formData, password });
-
-    if (password.length < 6) {
-      setPasswordStrength("Fraca");
-    } else if (
-      password.length >= 6 &&
-      /[A-Z]/.test(password) &&
-      /[0-9]/.test(password)
-    ) {
-      setPasswordStrength("Forte");
-    } else {
-      setPasswordStrength("Média");
-    }
+    setPasswordStrength(evaluatePasswordStrength(password));
   };
 
   const handleSubmit = async (e) => {
@@ -82,8 +94,11 @@ export default function RegisterUser() {
       return;
     }
 
-    if (passwordStrength === "Fraca") {
-      setError("A senha é fraca. Por favor, use uma senha mais forte.");
+    // Verifica se a senha atende aos requisitos definidos
+    if (!validatePassword(formData.password)) {
+      setError(
+        "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial."
+      );
       setErrorAlert(true);
       return;
     }
@@ -202,8 +217,6 @@ export default function RegisterUser() {
                 className={`text-sm ${
                   passwordStrength === "Fraca"
                     ? "text-red-500"
-                    : passwordStrength === "Média"
-                    ? "text-yellow-500"
                     : "text-teal-500"
                 }`}
               >

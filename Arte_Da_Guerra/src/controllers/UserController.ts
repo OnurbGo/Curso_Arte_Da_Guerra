@@ -23,7 +23,7 @@ const validateUserFields = (
     return {
       status: 400,
       error:
-        "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial",
+        "The password must have at least 8 characters, one saved letter, one number and one special character",
     };
   if (!type) return { status: 400, error: "Type is required" };
   return null;
@@ -84,7 +84,7 @@ export const updateUser = async (
       if (!passwordRegex.test(password))
         return res.status(400).json({
           error:
-            "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial",
+            "The password must have at least 8 characters, one saved letter, one number and one special character",
         });
       user.password = password;
     }
