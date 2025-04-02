@@ -1,53 +1,82 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import ClassModel from "../models/ClassModel";
 
 export const getAll = async (req: Request, res: Response) => {
-  const Class = await ClassModel.findAll();
-  res.send(Class);
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+  const query = req.query.q ? String(req.query.q) : "";
+  const field = req.query.field ? String(req.query.field) : "Nome do curso";
+
+  try {
+    let whereClause = {};
+    if (query) {
+      if (field === "Nome do curso") {
+        whereClause = { title: { [Op.like]: `%${query}%` } };
+      } else if (field === "Descrição do curso") {
+        whereClause = { description: { [Op.like]: `%${query}%` } };
+      }
+    }
+
+    const classes = await ClassModel.findAndCountAll({
+      where: whereClause,
+      offset,
+      limit,
+    });
+    res.json({ data: classes.rows, total: classes.count });
+  } catch (error) {
+    res.status(500).json({ error: "Erro interno no servidor", details: error });
+  }
 };
 
 export const getClassById = async (
-  req: Request<{ id: number }>,
+  req: Request<{ id: string }>,
   res: Response
 ) => {
-  const Class = await ClassModel.findByPk(req.params.id);
-  return res.json(Class);
+  try {
+    const classItem = await ClassModel.findByPk(req.params.id);
+    if (!classItem) {
+      return res.status(404).json({ error: "Classe não encontrada" });
+    }
+    return res.json(classItem);
+  } catch (error) {
+    res.status(500).json({ error: "Erro interno no servidor", details: error });
+  }
 };
 
 export const createClass = async (req: Request, res: Response) => {
   try {
     const { master_id, title, description, url_img, url_img_banner } = req.body;
 
-    if (!master_id || master_id === "") {
-      return res.status(400).json({ error: "Title is required" });
+    if (!master_id) {
+      return res.status(400).json({ error: "ID do mestre é obrigatório" });
+    }
+    if (!title) {
+      return res.status(400).json({ error: "Título é obrigatório" });
+    }
+    if (!description) {
+      return res.status(400).json({ error: "Descrição é obrigatória" });
+    }
+    if (!url_img) {
+      return res.status(400).json({ error: "URL da imagem é obrigatória" });
+    }
+    if (!url_img_banner) {
+      return res
+        .status(400)
+        .json({ error: "URL da imagem do banner é obrigatória" });
     }
 
-    if (!title || title === "") {
-      return res.status(400).json({ error: "Title is required" });
-    }
-
-    if (!description || description === "") {
-      return res.status(400).json({ error: "Description is required" });
-    }
-
-    if (!url_img || url_img === "") {
-      return res.status(400).json({ error: "Url Image is required" });
-    }
-
-    if (!url_img_banner || url_img_banner === "") {
-      return res.status(400).json({ error: "Url banner Image is required" });
-    }
-
-    const Class = await ClassModel.create({
+    const classItem = await ClassModel.create({
       master_id,
       title,
       description,
       url_img,
       url_img_banner,
     });
-    res.status(201).json(Class);
+    res.status(201).json(classItem);
   } catch (error) {
-    res.status(500).json("Erro interno no Servidor: " + error);
+    res.status(500).json({ error: "Erro interno no servidor", details: error });
   }
 };
 
@@ -58,37 +87,39 @@ export const updateClass = async (
   try {
     const { master_id, title, description, url_img, url_img_banner } = req.body;
 
-    if (!master_id || master_id === "") {
-      return res.status(400).json({ error: "Master ID is required" });
+    if (!master_id) {
+      return res.status(400).json({ error: "ID do mestre é obrigatório" });
     }
-    if (!title || title === "") {
-      return res.status(400).json({ error: "Title is required" });
+    if (!title) {
+      return res.status(400).json({ error: "Título é obrigatório" });
     }
-    if (!description || description === "") {
-      return res.status(400).json({ error: "Description is required" });
+    if (!description) {
+      return res.status(400).json({ error: "Descrição é obrigatória" });
     }
-    if (!url_img || url_img === "") {
-      return res.status(400).json({ error: "Url Image is required" });
+    if (!url_img) {
+      return res.status(400).json({ error: "URL da imagem é obrigatória" });
     }
-    if (!url_img_banner || url_img_banner === "") {
-      return res.status(400).json({ error: "Url banner Image is required" });
-    }
-
-    const Class = await ClassModel.findByPk(req.params.id);
-    if (!Class) {
-      return res.status(404).json({ error: "Class not found" });
+    if (!url_img_banner) {
+      return res
+        .status(400)
+        .json({ error: "URL da imagem do banner é obrigatória" });
     }
 
-    // Atualiza os campos, incluindo as URLs da imagem e do banner
-    Class.title = title;
-    Class.description = description;
-    Class.url_img = url_img;
-    Class.url_img_banner = url_img_banner;
+    const classItem = await ClassModel.findByPk(req.params.id);
+    if (!classItem) {
+      return res.status(404).json({ error: "Classe não encontrada" });
+    }
 
-    await Class.save();
-    res.status(201).json(Class);
+    classItem.master_id = master_id;
+    classItem.title = title;
+    classItem.description = description;
+    classItem.url_img = url_img;
+    classItem.url_img_banner = url_img_banner;
+
+    await classItem.save();
+    res.status(200).json(classItem);
   } catch (error) {
-    res.status(500).json("Erro interno no servidor " + error);
+    res.status(500).json({ error: "Erro interno no servidor", details: error });
   }
 };
 
@@ -97,15 +128,13 @@ export const destroyClassById = async (
   res: Response
 ) => {
   try {
-    const Class = await ClassModel.findByPk(req.params.id);
-    if (!Class) {
-      return res.status(404).json({ error: "User not found" });
+    const classItem = await ClassModel.findByPk(req.params.id);
+    if (!classItem) {
+      return res.status(404).json({ error: "Classe não encontrada" });
     }
-
-    await Class.destroy();
-
+    await classItem.destroy();
     res.status(204).send();
   } catch (error) {
-    res.status(500).json("Erro interno no servidor " + error);
+    res.status(500).json({ error: "Erro interno no servidor", details: error });
   }
 };

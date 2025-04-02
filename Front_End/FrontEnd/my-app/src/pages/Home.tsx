@@ -56,8 +56,10 @@ export default function Home() {
             Aprenda a Arte da Guerra
           </h1>
           <p className="mt-4 text-xl text-gray-600">
-            Explore inúmeros estilos de lutas, filosofias de vida, técnicas
-            derivadas e a arte da meditação.
+            Explore inúmeros estilos de luta, filosofias de vida
+            transformadoras, técnicas derivadas de mestres antigos e a arte da
+            meditação, essencial para fortalecer a mente. Prepare-se para a
+            jornada de autodescoberta e evolução.
           </p>
         </div>
         <div className="space-y-12">
@@ -69,7 +71,12 @@ export default function Home() {
             <div className="w-1/2 pr-8">
               <h2 className="text-3xl font-semibold">Treinamento</h2>
               <p className="mt-4 text-lg text-gray-600">
-                Descubra técnicas e treine com os melhores instrutores.
+                Descubra técnicas avançadas e treine ao lado dos melhores
+                instrutores, que irão guiar você rumo à excelência. Como disse
+                Bruce Lee: "Eu não temo o homem que praticou 10.000 chutes uma
+                vez, mas o homem que praticou um chute 10.000 vezes." A
+                verdadeira maestria vem da prática constante e do aprendizado
+                contínuo.
               </p>
             </div>
             <div className="w-1/2">
@@ -96,7 +103,8 @@ export default function Home() {
             <div className="w-1/2 pl-8">
               <h2 className="text-3xl font-semibold">Estilos de Lutas</h2>
               <p className="mt-4 text-lg text-gray-600">
-                Explore as diferentes filosofias e estilos de combate que podem
+                Explore as diversas filosofias e estilos de combate que não
+                apenas aprimoram suas habilidades, mas também têm o poder de
                 transformar sua vida.
               </p>
             </div>
@@ -110,7 +118,10 @@ export default function Home() {
             <div className="w-1/2 pr-8">
               <h2 className="text-3xl font-semibold">Meditação</h2>
               <p className="mt-4 text-lg text-gray-600">
-                Encontre o equilíbrio através da meditação e da concentração.
+                Encontre o equilíbrio através da meditação e da concentração,
+                fortalecendo sua mente e corpo em harmonia. Assim como um rio
+                turbulento impede uma visão clara, mas, ao se acalmar, revela
+                sua profundidade, uma mente serena permite enxergar com clareza.
               </p>
             </div>
             <div className="w-1/2">

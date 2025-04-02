@@ -56,7 +56,6 @@ export const createTeachers = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Usuário não encontrado" });
     }
 
-    // Verifica se o usuário é do tipo "teacher"
     if (user.type !== "teacher") {
       return res.status(400).json({ error: "Este usuário não é um professor" });
     }
@@ -87,27 +86,33 @@ export const updateTeachers = async (
 ) => {
   const transaction = await sequelize.transaction();
   try {
-    const { name, email, CPF, password, biography, expertise } = req.body;
-
-    if (!name || !email || !CPF || !biography || !expertise) {
+    const { name, password, biography, expertise } = req.body;
+    if (!name || !biography || !expertise) {
+      await transaction.rollback();
       return res
         .status(400)
-        .json({ error: "Todos os campos são obrigatórios" });
+        .json({ error: "Name, biografia e especialização são obrigatórios" });
     }
 
     const teacher = await TeachersModel.findByPk(req.params.id, {
       transaction,
     });
     if (!teacher) {
+      await transaction.rollback();
       return res.status(404).json({ error: "Professor não encontrado" });
     }
 
     const user = await UserModel.findByPk(teacher.user_id, { transaction });
     if (!user) {
+      await transaction.rollback();
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
-    await user.update({ name, email, CPF, password }, { transaction });
+    user.name = name;
+    if (password && password.trim() !== "") {
+      user.password = password;
+    }
+    await user.save({ transaction });
 
     await teacher.update({ biography, expertise }, { transaction });
 
@@ -116,7 +121,7 @@ export const updateTeachers = async (
     res.status(200).json({ user, teacher });
   } catch (error) {
     await transaction.rollback();
-    res.status(500).json("Erro interno no servidor: " + error);
+    res.status(500).json({ error: "Erro interno no servidor: " + error });
   }
 };
 
@@ -146,5 +151,25 @@ export const destroyTeachersById = async (
   } catch (error) {
     await transaction.rollback();
     res.status(500).json("Erro interno no servidor: " + error);
+  }
+};
+
+export const getTeacherByUserId = async (
+  req: Request<{ userId: string }>,
+  res: Response
+) => {
+  try {
+    const userId = Number(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: "ID de usuário inválido" });
+    }
+
+    const teacher = await TeachersModel.findOne({ where: { user_id: userId } });
+    if (!teacher) {
+      return res.status(404).json({ error: "Professor não encontrado" });
+    }
+    res.status(200).json(teacher);
+  } catch (error) {
+    res.status(500).json({ error: "Erro interno no servidor: " + error });
   }
 };

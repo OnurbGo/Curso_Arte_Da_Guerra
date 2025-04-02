@@ -48,9 +48,9 @@ const Pagination: React.FC<PaginationProps> = ({
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{startItem}</span> to{" "}
-            <span className="font-medium">{endItem}</span> of{" "}
-            <span className="font-medium">{totalItems}</span> results
+            Mostrando <span className="font-medium">{startItem}</span> até{" "}
+            <span className="font-medium">{endItem}</span> de{" "}
+            <span className="font-medium">{totalItems}</span> Resultados
           </p>
         </div>
         <div>

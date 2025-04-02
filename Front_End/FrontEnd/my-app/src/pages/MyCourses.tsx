@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
+import Pagination from "../components/Pagination";
 
 interface DecodedToken {
   user: {
@@ -68,6 +69,9 @@ const MyCourses: React.FC = () => {
   const [editLessonUrlVideo, setEditLessonUrlVideo] = useState("");
   const [editLessonUrlImg, setEditLessonUrlImg] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   useEffect(() => {
     const token = Cookies.get("authToken");
     if (token) {
@@ -79,23 +83,37 @@ const MyCourses: React.FC = () => {
           setMessageTab("course");
           return;
         }
-        setTeacherId(decoded.user.id);
-
         axios
-          .get("http://localhost:3000/class", { withCredentials: true })
-          .then((res) => {
-            const allClasses: Class[] = res.data;
-            const teacherClasses = allClasses.filter(
-              (course) => course.master_id === decoded.user.id
-            );
-            setClasses(teacherClasses);
+          .get(`http://localhost:3000/teachers/by-user/${decoded.user.id}`, {
+            withCredentials: true,
           })
-          .catch((err) => console.error("Erro ao buscar cursos:", err));
+          .then((res) => {
+            const teacherIdFromDB = res.data.id;
+            setTeacherId(teacherIdFromDB);
+
+            axios
+              .get("http://localhost:3000/class", { withCredentials: true })
+              .then((res) => {
+                let allClasses: Class[] = res.data.data
+                  ? res.data.data
+                  : res.data;
+                const teacherClasses = allClasses.filter(
+                  (course) => course.master_id === teacherIdFromDB
+                );
+                setClasses(teacherClasses);
+              })
+              .catch((err) => console.error("Erro ao buscar cursos:", err));
+          })
+          .catch((err) => console.error("Erro ao buscar professor:", err));
       } catch (error) {
         console.error("Erro ao decodificar o token:", error);
       }
     }
   }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   const handleCreateClass = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -103,11 +121,13 @@ const MyCourses: React.FC = () => {
 
     const newClass = {
       master_id: teacherId,
-      title: newClassTitle,
-      description: newClassDescription,
-      url_img: newClassImg,
-      url_img_banner: newClassBanner,
+      title: newClassTitle.trim(),
+      description: newClassDescription.trim(),
+      url_img: newClassImg.trim(),
+      url_img_banner: newClassBanner.trim(),
     };
+
+    console.log("Criando curso com os dados:", newClass);
 
     try {
       const res = await axios.post("http://localhost:3000/class", newClass, {
@@ -121,7 +141,7 @@ const MyCourses: React.FC = () => {
       setMessage("Curso criado com sucesso!");
       setMessageType("success");
       setMessageTab("course");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar curso:", error);
       setMessage("Erro ao criar curso");
       setMessageType("error");
@@ -129,7 +149,6 @@ const MyCourses: React.FC = () => {
     }
   };
 
-  // Função alterada para comportamento de toggle
   const handleViewLessons = async (classId: number) => {
     if (selectedClassForLessons === classId) {
       setSelectedClassForLessons(null);
@@ -141,7 +160,8 @@ const MyCourses: React.FC = () => {
         `http://localhost:3000/lessons?class_id=${classId}`,
         { withCredentials: true }
       );
-      setLessons(res.data);
+      const fetchedLessons: Lesson[] = res.data.data ? res.data.data : res.data;
+      setLessons(fetchedLessons);
       setSelectedClassForLessons(classId);
       setSelectedClassForLessonCreation(null);
       setMessage(null);
@@ -264,9 +284,7 @@ const MyCourses: React.FC = () => {
       const res = await axios.put(
         `http://localhost:3000/class/${courseId}`,
         updatedCourse,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
       setClasses(
         classes.map((course) => (course.id === courseId ? res.data : course))
@@ -315,9 +333,7 @@ const MyCourses: React.FC = () => {
       const res = await axios.put(
         `http://localhost:3000/lessons/${lessonId}`,
         updatedLesson,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
       setLessons(
         lessons.map((lesson) => (lesson.id === lessonId ? res.data : lesson))
@@ -333,6 +349,10 @@ const MyCourses: React.FC = () => {
       setMessageTab("lesson");
     }
   };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCourses = classes.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -405,7 +425,7 @@ const MyCourses: React.FC = () => {
         </form>
       </section>
 
-      {/* Listagem de cursos criados */}
+      {/* Listagem de cursos criados com paginação */}
       <section>
         <h2 className="text-2xl font-semibold mb-4 text-gray-700 text-center">
           Cursos Criados
@@ -413,284 +433,294 @@ const MyCourses: React.FC = () => {
         {classes.length === 0 ? (
           <p className="text-center text-gray-500">Nenhum curso criado.</p>
         ) : (
-          classes.map((course) => (
-            <div
-              key={course.id}
-              className="border-2 p-6 mb-6 rounded-lg shadow-sm hover:shadow-lg transition duration-300"
-            >
-              <div className="flex flex-col items-center">
-                <h3 className="text-xl font-semibold text-gray-800 text-center">
-                  {course.title}
-                </h3>
-                <img
-                  src={course.url_img_banner}
-                  alt={course.title}
-                  className="w-1/3 h-auto rounded-lg my-4 object-cover"
-                />
-              </div>
-              <p className="text-gray-600 mb-4">{course.description}</p>
-              <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
-                <button
-                  onClick={() => handleViewLessons(course.id)}
-                  className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
-                >
-                  Ver Lições
-                </button>
-                <button
-                  onClick={() =>
-                    setSelectedClassForLessonCreation(
-                      selectedClassForLessonCreation === course.id
-                        ? null
-                        : course.id
-                    )
-                  }
-                  className="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700 transition duration-300"
-                >
-                  Criar Lição
-                </button>
-                <button
-                  onClick={() => handleDeleteCourse(course.id)}
-                  className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition duration-300"
-                >
-                  Excluir Curso
-                </button>
-                <button
-                  onClick={() => handleStartEditCourse(course)}
-                  className="bg-yellow-500 text-white py-2 px-6 rounded-lg hover:bg-yellow-600 transition duration-300"
-                >
-                  Editar Curso
-                </button>
-              </div>
-
-              {editingCourseId === course.id && (
-                <form
-                  onSubmit={(e) => handleSubmitEditCourse(e, course.id)}
-                  className="mb-4 border-t pt-4"
-                >
-                  <h3 className="text-xl font-semibold mb-2 text-gray-700">
-                    Editar Curso
+          <>
+            {currentCourses.map((course) => (
+              <div
+                key={course.id}
+                className="border-2 p-6 mb-6 rounded-lg shadow-sm hover:shadow-lg transition duration-300"
+              >
+                <div className="flex flex-col items-center">
+                  <h3 className="w-full text-xl font-semibold text-gray-800 text-center break-all whitespace-normal">
+                    {course.title}
                   </h3>
-                  <input
-                    type="text"
-                    placeholder="Título do Curso"
-                    value={editCourseTitle}
-                    onChange={(e) => setEditCourseTitle(e.target.value)}
-                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
+                  <img
+                    src={course.url_img}
+                    alt={course.title}
+                    className="w-1/3 h-auto rounded-lg my-4 object-cover"
                   />
-                  <textarea
-                    placeholder="Descrição do Curso"
-                    value={editCourseDescription}
-                    onChange={(e) => setEditCourseDescription(e.target.value)}
-                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  ></textarea>
-                  <input
-                    type="text"
-                    placeholder="URL da Imagem"
-                    value={editCourseImg}
-                    onChange={(e) => setEditCourseImg(e.target.value)}
-                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="URL do Banner"
-                    value={editCourseBanner}
-                    onChange={(e) => setEditCourseBanner(e.target.value)}
-                    className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                  <div className="flex justify-center space-x-4 mt-2">
-                    <button
-                      type="submit"
-                      className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
-                    >
-                      Salvar Alterações
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancelEditCourse}
-                      className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {/* Exibe as lições do curso */}
-              {selectedClassForLessons === course.id && (
-                <div className="mt-6">
-                  <h3 className="text-xl font-semibold mb-2 text-gray-700">
-                    Lições
-                  </h3>
-                  {lessons.length === 0 ? (
-                    <p className="text-center text-gray-500">
-                      Curso sem lições até o momento.
-                    </p>
-                  ) : (
-                    lessons.map((lesson) => (
-                      <div
-                        key={lesson.id}
-                        className="border p-4 mb-3 rounded-lg shadow-sm"
-                      >
-                        {editingLessonId === lesson.id ? (
-                          <form
-                            onSubmit={(e) =>
-                              handleSubmitEditLesson(e, lesson.id)
-                            }
-                          >
-                            <input
-                              type="text"
-                              placeholder="Título da Lição"
-                              value={editLessonTitle}
-                              onChange={(e) =>
-                                setEditLessonTitle(e.target.value)
-                              }
-                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                            />
-                            <textarea
-                              placeholder="Descrição da Lição"
-                              value={editLessonDescription}
-                              onChange={(e) =>
-                                setEditLessonDescription(e.target.value)
-                              }
-                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                            ></textarea>
-                            <input
-                              type="text"
-                              placeholder="URL do Vídeo"
-                              value={editLessonUrlVideo}
-                              onChange={(e) =>
-                                setEditLessonUrlVideo(e.target.value)
-                              }
-                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                            />
-                            <input
-                              type="text"
-                              placeholder="URL da Imagem"
-                              value={editLessonUrlImg}
-                              onChange={(e) =>
-                                setEditLessonUrlImg(e.target.value)
-                              }
-                              className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                            />
-                            <div className="flex justify-center space-x-4 mt-2">
-                              <button
-                                type="submit"
-                                className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
-                              >
-                                Salvar Alterações
-                              </button>
-                              <button
-                                type="button"
-                                onClick={handleCancelEditLesson}
-                                className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
-                              >
-                                Cancelar
-                              </button>
-                            </div>
-                          </form>
-                        ) : (
-                          <div className="flex justify-between items-center">
-                            <div className="flex-1 overflow-hidden">
-                              <h4 className="text-lg font-bold text-gray-800">
-                                {lesson.title}
-                              </h4>
-                              <p
-                                className="text-gray-600 truncate"
-                                title={lesson.description}
-                              >
-                                {lesson.description}
-                              </p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                              <button
-                                onClick={() => handleStartEditLesson(lesson)}
-                                className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-300"
-                              >
-                                Editar Lição
-                              </button>
-                              <button
-                                onClick={() => handleDeleteLesson(lesson.id)}
-                                className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition duration-300"
-                              >
-                                Excluir
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                        <a
-                          href={lesson.url_video}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline mt-2 inline-block"
-                        >
-                          Assistir Vídeo
-                        </a>
-                      </div>
-                    ))
-                  )}
                 </div>
-              )}
-
-              {/* Formulário de criação de nova lição */}
-              {selectedClassForLessonCreation === course.id && (
-                <div className="mt-6 border-t pt-4">
-                  <h3 className="text-xl font-semibold mb-2 text-gray-700">
-                    Criar Nova Lição
-                  </h3>
-                  <form
-                    onSubmit={(e) => handleCreateLesson(e, course.id)}
-                    className="space-y-4"
+                <p className="text-gray-600 mb-4 break-words whitespace-normal">
+                  {course.description}
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
+                  <button
+                    onClick={() => handleViewLessons(course.id)}
+                    className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
                   >
+                    Ver Lições
+                  </button>
+                  <button
+                    onClick={() =>
+                      setSelectedClassForLessonCreation(
+                        selectedClassForLessonCreation === course.id
+                          ? null
+                          : course.id
+                      )
+                    }
+                    className="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700 transition duration-300"
+                  >
+                    Criar Lição
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCourse(course.id)}
+                    className="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition duration-300"
+                  >
+                    Excluir Curso
+                  </button>
+                  <button
+                    onClick={() => handleStartEditCourse(course)}
+                    className="bg-yellow-500 text-white py-2 px-6 rounded-lg hover:bg-yellow-600 transition duration-300"
+                  >
+                    Editar Curso
+                  </button>
+                </div>
+
+                {editingCourseId === course.id && (
+                  <form
+                    onSubmit={(e) => handleSubmitEditCourse(e, course.id)}
+                    className="mb-4 border-t pt-4"
+                  >
+                    <h3 className="text-xl font-semibold mb-2 text-gray-700">
+                      Editar Curso
+                    </h3>
                     <input
                       type="text"
-                      placeholder="Título da Lição"
-                      value={newLessonTitle}
-                      onChange={(e) => setNewLessonTitle(e.target.value)}
-                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Título do Curso"
+                      value={editCourseTitle}
+                      onChange={(e) => setEditCourseTitle(e.target.value)}
+                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                     <textarea
-                      placeholder="Descrição da Lição"
-                      value={newLessonDescription}
-                      onChange={(e) => setNewLessonDescription(e.target.value)}
-                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Descrição do Curso"
+                      value={editCourseDescription}
+                      onChange={(e) => setEditCourseDescription(e.target.value)}
+                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     ></textarea>
                     <input
                       type="text"
-                      placeholder="URL do Vídeo"
-                      value={newLessonUrlVideo}
-                      onChange={(e) => setNewLessonUrlVideo(e.target.value)}
-                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="URL da Imagem"
+                      value={editCourseImg}
+                      onChange={(e) => setEditCourseImg(e.target.value)}
+                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                     <input
                       type="text"
-                      placeholder="URL da Imagem"
-                      value={newLessonUrlImg}
-                      onChange={(e) => setNewLessonUrlImg(e.target.value)}
-                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="URL do Banner"
+                      value={editCourseBanner}
+                      onChange={(e) => setEditCourseBanner(e.target.value)}
+                      className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300"
-                    >
-                      Criar Lição
-                    </button>
+                    <div className="flex justify-center space-x-4 mt-2">
+                      <button
+                        type="submit"
+                        className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
+                      >
+                        Salvar Alterações
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelEditCourse}
+                        className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   </form>
-                </div>
-              )}
-            </div>
-          ))
+                )}
+
+                {selectedClassForLessons === course.id && (
+                  <div className="mt-6">
+                    <h3 className="text-xl font-semibold mb-2 text-gray-700">
+                      Lições
+                    </h3>
+                    {lessons.length === 0 ? (
+                      <p className="text-center text-gray-500">
+                        Curso sem lições até o momento.
+                      </p>
+                    ) : (
+                      lessons.map((lesson) => (
+                        <div
+                          key={lesson.id}
+                          className="border p-4 mb-3 rounded-lg shadow-sm"
+                        >
+                          {editingLessonId === lesson.id ? (
+                            <form
+                              onSubmit={(e) =>
+                                handleSubmitEditLesson(e, lesson.id)
+                              }
+                            >
+                              <input
+                                type="text"
+                                placeholder="Título da Lição"
+                                value={editLessonTitle}
+                                onChange={(e) =>
+                                  setEditLessonTitle(e.target.value)
+                                }
+                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                              />
+                              <textarea
+                                placeholder="Descrição da Lição"
+                                value={editLessonDescription}
+                                onChange={(e) =>
+                                  setEditLessonDescription(e.target.value)
+                                }
+                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                              ></textarea>
+                              <input
+                                type="text"
+                                placeholder="URL do Vídeo"
+                                value={editLessonUrlVideo}
+                                onChange={(e) =>
+                                  setEditLessonUrlVideo(e.target.value)
+                                }
+                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                              />
+                              <input
+                                type="text"
+                                placeholder="URL da Imagem"
+                                value={editLessonUrlImg}
+                                onChange={(e) =>
+                                  setEditLessonUrlImg(e.target.value)
+                                }
+                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                              />
+                              <div className="flex justify-center space-x-4 mt-2">
+                                <button
+                                  type="submit"
+                                  className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
+                                >
+                                  Salvar Alterações
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={handleCancelEditLesson}
+                                  className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </form>
+                          ) : (
+                            <div className="flex justify-between items-center">
+                              <div className="flex-1 overflow-hidden">
+                                <h4 className="text-lg font-bold text-gray-800 truncate">
+                                  {lesson.title}
+                                </h4>
+                                <p
+                                  className="text-gray-600 truncate"
+                                  title={lesson.description}
+                                >
+                                  {lesson.description}
+                                </p>
+                              </div>
+                              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                <button
+                                  onClick={() => handleStartEditLesson(lesson)}
+                                  className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-300"
+                                >
+                                  Editar Lição
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteLesson(lesson.id)}
+                                  className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition duration-300"
+                                >
+                                  Excluir
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          <a
+                            href={lesson.url_video}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline mt-2 inline-block"
+                          >
+                            Assistir Vídeo
+                          </a>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {selectedClassForLessonCreation === course.id && (
+                  <div className="mt-6 border-t pt-4">
+                    <h3 className="text-xl font-semibold mb-2 text-gray-700">
+                      Criar Nova Lição
+                    </h3>
+                    <form
+                      onSubmit={(e) => handleCreateLesson(e, course.id)}
+                      className="space-y-4"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Título da Lição"
+                        value={newLessonTitle}
+                        onChange={(e) => setNewLessonTitle(e.target.value)}
+                        className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      />
+                      <textarea
+                        placeholder="Descrição da Lição"
+                        value={newLessonDescription}
+                        onChange={(e) =>
+                          setNewLessonDescription(e.target.value)
+                        }
+                        className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      ></textarea>
+                      <input
+                        type="text"
+                        placeholder="URL do Vídeo"
+                        value={newLessonUrlVideo}
+                        onChange={(e) => setNewLessonUrlVideo(e.target.value)}
+                        className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      />
+                      <input
+                        type="text"
+                        placeholder="URL da Imagem"
+                        value={newLessonUrlImg}
+                        onChange={(e) => setNewLessonUrlImg(e.target.value)}
+                        className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+                      >
+                        Criar Lição
+                      </button>
+                    </form>
+                  </div>
+                )}
+              </div>
+            ))}
+            <Pagination
+              currentPage={currentPage}
+              totalItems={classes.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </>
         )}
       </section>
     </div>

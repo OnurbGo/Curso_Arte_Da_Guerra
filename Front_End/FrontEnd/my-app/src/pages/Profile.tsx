@@ -9,7 +9,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  CPF: string;
+  CPF?: string;
   type: string;
   registration_date: string;
 }
@@ -29,12 +29,22 @@ const Profile: React.FC = () => {
   const [userData, setUserData] = useState<User | null>(null);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Mensagens (error = vermelho, success = verde)
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"error" | "success">(
+    "success"
+  );
 
   const [teacherData, setTeacherData] = useState<Teacher | null>(null);
   const [biography, setBiography] = useState("");
   const [expertise, setExpertise] = useState("");
+
   const [teacherMessage, setTeacherMessage] = useState("");
+  const [teacherMessageType, setTeacherMessageType] = useState<
+    "error" | "success"
+  >("success");
 
   const navigate = useNavigate();
 
@@ -84,14 +94,18 @@ const Profile: React.FC = () => {
   const handleUserSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userData) return;
-    try {
-      const updatedData: Partial<User> & { password?: string } = {
-        name,
-        email: userData.email,
-        CPF: userData.CPF,
-        type: userData.type,
-      };
 
+    // Se a senha for informada, verifica a confirmação
+    if (password.trim() !== "" && password !== confirmPassword) {
+      setMessage(
+        "As senhas não conferem. Verifique o campo 'Confirmar Senha'."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    try {
+      const updatedData: { name: string; password?: string } = { name };
       if (password.trim() !== "") {
         updatedData.password = password;
       }
@@ -103,23 +117,35 @@ const Profile: React.FC = () => {
         }
       );
       setMessage("Perfil atualizado com sucesso!");
+      setMessageType("success");
       setUserData({ ...userData, name });
       setPassword("");
-    } catch (error) {
+      setConfirmPassword("");
+    } catch (error: any) {
       console.error("Erro ao atualizar perfil:", error);
-      setMessage("Erro ao atualizar perfil. Tente novamente.");
+      const errorMsg =
+        error.response?.data?.error ||
+        "Erro ao atualizar perfil. Tente novamente.";
+      setMessage(errorMsg);
+      setMessageType("error");
     }
   };
 
   const handleTeacherSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!teacherData || !userData) return;
+
+    if (password.trim() !== "" && password !== confirmPassword) {
+      setTeacherMessage(
+        "As senhas não conferem. Verifique o campo 'Confirmar Senha'."
+      );
+      setTeacherMessageType("error");
+      return;
+    }
     try {
       const teacherUpdatedData = {
-        name: userData.name,
-        email: userData.email,
-        CPF: userData.CPF,
-        password: password,
+        name,
+        password: password.trim() !== "" ? password : "",
         biography,
         expertise,
       };
@@ -129,11 +155,17 @@ const Profile: React.FC = () => {
         { withCredentials: true }
       );
       setTeacherMessage("Dados do professor atualizados com sucesso!");
-    } catch (error) {
+      setTeacherMessageType("success");
+      setUserData({ ...userData, name });
+      setPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
       console.error("Erro ao atualizar dados do professor:", error);
-      setTeacherMessage(
-        "Erro ao atualizar dados do professor. Tente novamente."
-      );
+      const errorMsg =
+        error.response?.data?.error ||
+        "Erro ao atualizar dados do professor. Tente novamente.";
+      setTeacherMessage(errorMsg);
+      setTeacherMessageType("error");
     }
   };
 
@@ -148,13 +180,19 @@ const Profile: React.FC = () => {
   return (
     <div className="flex-grow max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-3xl font-semibold text-gray-800 mb-6">Meu Perfil</h2>
+
+      {/* Mensagem para atualização do usuário */}
       {message && (
-        <p className="mb-6 text-center text-green-500 font-semibold">
+        <p
+          className={`mb-6 text-center font-semibold ${
+            messageType === "error" ? "text-red-500" : "text-green-500"
+          }`}
+        >
           {message}
         </p>
       )}
 
-      {/* Formulário para dados de conta */}
+      {/* Formulário de atualização dos dados do usuário */}
       <form onSubmit={handleUserSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-2">
@@ -182,6 +220,19 @@ const Profile: React.FC = () => {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-2">
+            Confirmar Senha
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirme a nova senha"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
         <div className="text-center">
           <button
             type="submit"
@@ -192,14 +243,20 @@ const Profile: React.FC = () => {
         </div>
       </form>
 
-      {/* Se o usuário for teacher, exibe formulário para atualizar dados do professor */}
+      {/* Se o usuário for professor, exibe o formulário de dados do professor */}
       {userData.type === "teacher" && teacherData && (
         <div className="mt-10">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">
             Dados do Professor
           </h3>
           {teacherMessage && (
-            <p className="mb-6 text-center text-green-500 font-semibold">
+            <p
+              className={`mb-6 text-center font-semibold ${
+                teacherMessageType === "error"
+                  ? "text-red-500"
+                  : "text-green-500"
+              }`}
+            >
               {teacherMessage}
             </p>
           )}

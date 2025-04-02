@@ -76,7 +76,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ options, onSearch }) => {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
               />
             </svg>
           </button>
@@ -114,12 +114,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ options, onSearch }) => {
         >
           Limpar pesquisa
         </button>
-        {/* Botão Search */}
+        {/* Botão Buscar */}
         <button
           onClick={handleSearchClick}
           className="px-3 py-2 border border-blue-500 rounded-md bg-blue-500 text-sm text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-auto w-full mt-2 sm:mt-0"
         >
-          Search
+          Buscar
         </button>
       </div>
     </div>

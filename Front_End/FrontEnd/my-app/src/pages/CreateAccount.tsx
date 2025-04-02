@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { cpf as cpfValidator } from "cpf-cnpj-validator";
 
 export default function RegisterUser() {
   const [formData, setFormData] = useState({
@@ -7,6 +8,7 @@ export default function RegisterUser() {
     email: "",
     CPF: "",
     password: "",
+    confirmPassword: "",
     type: "",
     biography: "",
     expertise: "",
@@ -22,9 +24,15 @@ export default function RegisterUser() {
     return emailRegex.test(email);
   };
 
-  const validateCPF = (cpf) => {
-    const cpfRegex = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
-    return cpfRegex.test(cpf);
+  const validateCPF = (cpfValue) => {
+    return cpfValidator.isValid(cpfValue);
+  };
+
+  // Formata o CPF para o formato 000.000.000-00
+  const formatCPF = (cpf) => {
+    const digits = cpf.replace(/\D/g, "");
+    if (digits.length !== 11) return cpf;
+    return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   };
 
   const handleChange = (e) => {
@@ -61,8 +69,14 @@ export default function RegisterUser() {
     }
 
     if (!validateCPF(formData.CPF)) {
+      setError("CPF inválido. Por favor, insira um CPF válido.");
+      setErrorAlert(true);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
       setError(
-        "CPF inválido. Use o formato XXX.XXX.XXX-XX ou números sem pontuação."
+        "As senhas não correspondem. Por favor, confirme a senha corretamente."
       );
       setErrorAlert(true);
       return;
@@ -85,9 +99,18 @@ export default function RegisterUser() {
     }
 
     try {
+      // Formata o CPF antes de enviar
+      const userPayload = {
+        name: formData.name,
+        email: formData.email,
+        CPF: formatCPF(formData.CPF),
+        password: formData.password,
+        type: formData.type,
+      };
+
       const userResponse = await axios.post(
         "http://localhost:3000/users",
-        formData
+        userPayload
       );
       setSuccess(true);
 
@@ -173,13 +196,8 @@ export default function RegisterUser() {
               type="password"
               required
               onChange={handlePasswordChange}
-              id="hs-strong-password-base"
               className="block w-full rounded-md border-gray-300 px-3 py-1.5 text-gray-900 shadow-sm focus:outline-indigo-600"
             />
-            <div
-              data-hs-strong-password='{"target": "#hs-strong-password-base", "stripClasses": "hs-strong-password:opacity-100 hs-strong-password-accepted:bg-teal-500 h-2 flex-auto rounded-full bg-blue-500 opacity-50 mx-1"}'
-              className="flex mt-2 -mx-1"
-            ></div>
             {passwordStrength && (
               <p
                 className={`text-sm ${
@@ -193,6 +211,19 @@ export default function RegisterUser() {
                 Senha {passwordStrength}
               </p>
             )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-900">
+              Confirmar Senha
+            </label>
+            <input
+              name="confirmPassword"
+              type="password"
+              required
+              onChange={handleChange}
+              className="block w-full rounded-md border-gray-300 px-3 py-1.5 text-gray-900 shadow-sm focus:outline-indigo-600"
+            />
           </div>
 
           <div>
@@ -266,7 +297,7 @@ export default function RegisterUser() {
             role="alert"
           >
             <span className="block sm:inline">
-              Erro ao registrar. Tente novamente.
+              {error || "Erro ao registrar. Tente novamente."}
             </span>
           </div>
         )}

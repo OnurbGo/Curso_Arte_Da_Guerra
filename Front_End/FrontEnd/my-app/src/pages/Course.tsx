@@ -8,6 +8,7 @@ import Pagination from "../components/Pagination";
 const Course = () => {
   const { id } = useParams();
   const [lessons, setLessons] = useState<any[]>([]);
+  const [totalLessons, setTotalLessons] = useState<number>(0);
   const [courseDetails, setCourseDetails] = useState<any>(null);
   const [teacher, setTeacher] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +17,18 @@ const Course = () => {
   const lessonsPerPage = 8;
   const navigate = useNavigate();
 
-  // Funções de fetch...
+  const fetchCourseDetails = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/class/${id}`);
+      if (!response.ok) throw new Error("Falha ao buscar os detalhes do curso");
+      const data = await response.json();
+      setCourseDetails(data);
+      fetchTeacher(data.master_id);
+    } catch (error) {
+      setError("Erro ao carregar os detalhes do curso");
+    }
+  };
+
   const fetchTeacher = async (teacherId: string | number) => {
     try {
       const token = localStorage.getItem("token");
@@ -36,26 +48,20 @@ const Course = () => {
     }
   };
 
-  const fetchCourseDetails = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/class/${id}`);
-      if (!response.ok) throw new Error("Falha ao buscar os detalhes do curso");
-      const data = await response.json();
-      setCourseDetails(data);
-      fetchTeacher(data.master_id);
-    } catch (error) {
-      setError("Erro ao carregar os detalhes do curso");
-    }
-  };
-
-  const fetchLessons = async () => {
+  const fetchLessons = async (page: number, limit: number) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/lessons?class_id=${id}`
+        `http://localhost:3000/lessons?class_id=${id}&page=${page}&limit=${limit}`
       );
       if (!response.ok) throw new Error("Falha ao buscar as lições");
       const data = await response.json();
-      setLessons(data);
+      if (data.data && data.total !== undefined) {
+        setLessons(data.data);
+        setTotalLessons(data.total);
+      } else {
+        setLessons(data);
+        setTotalLessons(data.length);
+      }
     } catch (error) {
       setError("Erro ao carregar as lições");
     } finally {
@@ -67,18 +73,12 @@ const Course = () => {
     setLoading(true);
     setError(null);
     fetchCourseDetails();
-    fetchLessons();
+    fetchLessons(currentPage, lessonsPerPage);
     AOS.init({ duration: 1000 });
     return () => {
       AOS.refresh();
     };
-  }, [id]);
-
-  const totalLessons = lessons.length;
-  const currentLessons = lessons.slice(
-    (currentPage - 1) * lessonsPerPage,
-    currentPage * lessonsPerPage
-  );
+  }, [id, currentPage]);
 
   if (loading || !courseDetails || !teacher) {
     return (
@@ -150,13 +150,13 @@ const Course = () => {
       >
         Lições do Curso
       </h2>
-      {currentLessons.length === 0 ? (
+      {lessons.length === 0 ? (
         <p className="text-center text-gray-600">
           Não há lições disponíveis para este curso.
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {currentLessons.map((lesson) => (
+          {lessons.map((lesson) => (
             <div
               key={lesson.id}
               className="border rounded-lg p-4 flex flex-col items-center bg-white shadow-lg transform hover:scale-105 transition-all duration-300"
@@ -181,7 +181,7 @@ const Course = () => {
         </div>
       )}
 
-      {/* Componente de Paginação */}
+      {/* Paginação */}
       <Pagination
         currentPage={currentPage}
         totalItems={totalLessons}
