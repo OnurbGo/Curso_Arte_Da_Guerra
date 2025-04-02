@@ -30,22 +30,17 @@ const Profile: React.FC = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Mensagens (error = vermelho, success = verde)
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"error" | "success">(
     "success"
   );
-
   const [teacherData, setTeacherData] = useState<Teacher | null>(null);
   const [biography, setBiography] = useState("");
   const [expertise, setExpertise] = useState("");
-
   const [teacherMessage, setTeacherMessage] = useState("");
   const [teacherMessageType, setTeacherMessageType] = useState<
     "error" | "success"
   >("success");
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,13 +52,11 @@ const Profile: React.FC = () => {
     try {
       const decoded = jwt_decode<DecodedToken>(token);
       const userId = decoded.user.id;
-
       axios
         .get(`http://localhost:3000/users/${userId}`, { withCredentials: true })
         .then((res) => {
           setUserData(res.data);
           setName(res.data.name);
-
           if (res.data.type === "teacher") {
             axios
               .get(`http://localhost:3000/teachers`, { withCredentials: true })
@@ -94,8 +87,6 @@ const Profile: React.FC = () => {
   const handleUserSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userData) return;
-
-    // Se a senha for informada, verifica a confirmação
     if (password.trim() !== "" && password !== confirmPassword) {
       setMessage(
         "As senhas não conferem. Verifique o campo 'Confirmar Senha'."
@@ -103,7 +94,6 @@ const Profile: React.FC = () => {
       setMessageType("error");
       return;
     }
-
     try {
       const updatedData: { name: string; password?: string } = { name };
       if (password.trim() !== "") {
@@ -134,7 +124,6 @@ const Profile: React.FC = () => {
   const handleTeacherSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!teacherData || !userData) return;
-
     if (password.trim() !== "" && password !== confirmPassword) {
       setTeacherMessage(
         "As senhas não conferem. Verifique o campo 'Confirmar Senha'."
@@ -143,16 +132,16 @@ const Profile: React.FC = () => {
       return;
     }
     try {
-      const teacherUpdatedData = {
-        name,
-        password: password.trim() !== "" ? password : "",
-        biography,
-        expertise,
-      };
+      const teacherUpdatedData: any = { name, biography, expertise };
+      if (password.trim() !== "") {
+        teacherUpdatedData.password = password;
+      }
       await axios.put(
         `http://localhost:3000/teachers/${teacherData.id}`,
         teacherUpdatedData,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        }
       );
       setTeacherMessage("Dados do professor atualizados com sucesso!");
       setTeacherMessageType("success");
@@ -180,8 +169,6 @@ const Profile: React.FC = () => {
   return (
     <div className="flex-grow max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-3xl font-semibold text-gray-800 mb-6">Meu Perfil</h2>
-
-      {/* Mensagem para atualização do usuário */}
       {message && (
         <p
           className={`mb-6 text-center font-semibold ${
@@ -191,8 +178,6 @@ const Profile: React.FC = () => {
           {message}
         </p>
       )}
-
-      {/* Formulário de atualização dos dados do usuário */}
       <form onSubmit={handleUserSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-2">
@@ -206,7 +191,6 @@ const Profile: React.FC = () => {
             required
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-2">
             Senha
@@ -219,7 +203,6 @@ const Profile: React.FC = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-2">
             Confirmar Senha
@@ -232,7 +215,6 @@ const Profile: React.FC = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
         <div className="text-center">
           <button
             type="submit"
@@ -242,8 +224,6 @@ const Profile: React.FC = () => {
           </button>
         </div>
       </form>
-
-      {/* Se o usuário for professor, exibe o formulário de dados do professor */}
       {userData.type === "teacher" && teacherData && (
         <div className="mt-10">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">
@@ -273,7 +253,6 @@ const Profile: React.FC = () => {
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 Especialização
@@ -286,7 +265,6 @@ const Profile: React.FC = () => {
                 required
               />
             </div>
-
             <div className="text-center">
               <button
                 type="submit"

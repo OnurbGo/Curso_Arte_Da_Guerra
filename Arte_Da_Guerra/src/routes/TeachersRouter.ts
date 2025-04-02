@@ -7,14 +7,15 @@ import {
   updateTeachers,
   getTeacherByUserId,
 } from "../controllers/TeachersController";
+import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.get("/teachers", getAll);
-router.get("/teachers/by-user/:userId", getTeacherByUserId);
-router.get("/teachers/:id", getTeachersById);
+router.get("/teachers", authMiddleware, getAll);
+router.get("/teachers/by-user/:userId", authMiddleware, getTeacherByUserId);
+router.get("/teachers/:id", authMiddleware, getTeachersById);
 router.post("/teachers", createTeachers);
-router.put("/teachers/:id", updateTeachers);
-router.delete("/teachers/:id", destroyTeachersById);
+router.put("/teachers/:id", authMiddleware, updateTeachers);
+router.delete("/teachers/:id", authMiddleware, destroyTeachersById);
 
 export default router;

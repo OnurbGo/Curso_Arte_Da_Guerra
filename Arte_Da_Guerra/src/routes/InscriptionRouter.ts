@@ -6,13 +6,14 @@ import {
   getInscriptionById,
   updateInscription,
 } from "../controllers/InscriptionController";
+import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.get("/inscription", getAll);
-router.get("/inscription/:id", getInscriptionById);
-router.post("/inscription", createInscription);
-router.put("/inscription/:id", updateInscription);
-router.delete("/inscription/:id", destroyInscriptionById);
+router.get("/inscription", authMiddleware, getAll);
+router.get("/inscription/:id", authMiddleware, getInscriptionById);
+router.post("/inscription", authMiddleware, createInscription);
+router.put("/inscription/:id", authMiddleware, updateInscription);
+router.delete("/inscription/:id", authMiddleware, destroyInscriptionById);
 
 export default router;

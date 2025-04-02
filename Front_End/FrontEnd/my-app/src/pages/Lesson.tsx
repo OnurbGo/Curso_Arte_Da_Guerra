@@ -8,11 +8,17 @@ const Lesson = () => {
 
   const fetchLesson = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/lessons/${id}`);
+      const response = await fetch(`http://localhost:3000/lessons/${id}`, {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Falha ao buscar a lição");
+      }
       const data = await response.json();
       setLesson(data);
     } catch (error) {
       console.error("Erro ao buscar a lição:", error);
+      setLesson(null);
     } finally {
       setLoading(false);
     }
@@ -52,9 +58,6 @@ const Lesson = () => {
           </video>
         </div>
       </div>
-      <br />
-      <br />
-      <br />
     </div>
   );
 };

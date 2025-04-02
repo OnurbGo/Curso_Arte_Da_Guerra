@@ -99,7 +99,6 @@ export default function RegisterUser() {
     }
 
     try {
-      // Formata o CPF antes de enviar
       const userPayload = {
         name: formData.name,
         email: formData.email,

@@ -5,7 +5,7 @@ import "aos/dist/aos.css";
 import LoadingSpinner from "../components/LoadingSpinner";
 import Pagination from "../components/Pagination";
 
-const Course = () => {
+const Course: React.FC = () => {
   const { id } = useParams();
   const [lessons, setLessons] = useState<any[]>([]);
   const [totalLessons, setTotalLessons] = useState<number>(0);
@@ -19,12 +19,14 @@ const Course = () => {
 
   const fetchCourseDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/class/${id}`);
+      const response = await fetch(`http://localhost:3000/class/${id}`, {
+        credentials: "include",
+      });
       if (!response.ok) throw new Error("Falha ao buscar os detalhes do curso");
       const data = await response.json();
       setCourseDetails(data);
       fetchTeacher(data.master_id);
-    } catch (error) {
+    } catch (err) {
       setError("Erro ao carregar os detalhes do curso");
     }
   };
@@ -35,15 +37,16 @@ const Course = () => {
       const response = await fetch(
         `http://localhost:3000/teachers/${teacherId}`,
         {
+          credentials: "include",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
       if (!response.ok) throw new Error("Falha ao buscar o professor");
       const data = await response.json();
       setTeacher(data);
-    } catch (error) {
+    } catch (err) {
       setError("Erro ao carregar os dados do professor");
     }
   };
@@ -51,18 +54,22 @@ const Course = () => {
   const fetchLessons = async (page: number, limit: number) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/lessons?class_id=${id}&page=${page}&limit=${limit}`
+        `http://localhost:3000/lessons?class_id=${id}&page=${page}&limit=${limit}`,
+        { credentials: "include" }
       );
       if (!response.ok) throw new Error("Falha ao buscar as lições");
       const data = await response.json();
       if (data.data && data.total !== undefined) {
         setLessons(data.data);
         setTotalLessons(data.total);
-      } else {
+      } else if (Array.isArray(data)) {
         setLessons(data);
         setTotalLessons(data.length);
+      } else {
+        setLessons([]);
+        setTotalLessons(0);
       }
-    } catch (error) {
+    } catch (err) {
       setError("Erro ao carregar as lições");
     } finally {
       setLoading(false);
@@ -98,7 +105,6 @@ const Course = () => {
 
   return (
     <div className="container mx-auto p-6">
-      {/* Cabeçalho do Curso */}
       <div
         className="bg-gray-100 p-8 rounded-lg shadow-md mb-12"
         data-aos="fade-up"
@@ -110,8 +116,6 @@ const Course = () => {
           {courseDetails.description}
         </p>
       </div>
-
-      {/* Informações do Professor */}
       <div
         className="bg-white p-8 rounded-lg shadow-md mb-12"
         data-aos="fade-up"
@@ -123,7 +127,7 @@ const Course = () => {
           <div>
             <p className="font-bold text-gray-700">Nome do Professor:</p>
             <p className="text-gray-600">
-              {teacher.UserModel?.name || "Nome não disponível"}
+              {teacher.UserModel?.name || teacher.name || "Nome não disponível"}
             </p>
           </div>
           <div>
@@ -142,8 +146,6 @@ const Course = () => {
           </div>
         </div>
       </div>
-
-      {/* Lições do Curso */}
       <h2
         className="text-3xl font-semibold text-gray-800 mb-6 text-center"
         data-aos="fade-up"
@@ -180,8 +182,6 @@ const Course = () => {
           ))}
         </div>
       )}
-
-      {/* Paginação */}
       <Pagination
         currentPage={currentPage}
         totalItems={totalLessons}

@@ -6,13 +6,14 @@ import {
   getPaymentById,
   updatePayment,
 } from "../controllers/PaymentController";
+import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.get("/payment", getAll);
-router.get("/payment/:id", getPaymentById);
-router.post("/payment", createPayment);
-router.put("/payment/:id", updatePayment);
-router.delete("/payment/:id", destroyPaymentById);
+router.get("/payment", authMiddleware, getAll);
+router.get("/payment/:id", authMiddleware, getPaymentById);
+router.post("/payment", authMiddleware, createPayment);
+router.put("/payment/:id", authMiddleware, updatePayment);
+router.delete("/payment/:id", authMiddleware, destroyPaymentById);
 
 export default router;

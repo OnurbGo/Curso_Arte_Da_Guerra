@@ -1,30 +1,30 @@
 import { Request, Response } from "express";
 import UserModel from "../models/UserModel";
 
-// Regex para validação de email
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-// Regex para validação de CPF (formato: 000.000.000-00)
-const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+const passwordRegex =
+  /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 const validateUserFields = (
   name: string,
   email: string,
   CPF: string,
   password: string,
-  type: string,
-  requirePassword: boolean = true
+  type: string
 ) => {
   if (!name) return { status: 400, error: "Name is required" };
-  if (!email || !emailRegex.test(email))
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     return { status: 400, error: "Invalid email format" };
-  if (!CPF || !cpfRegex.test(CPF))
+  if (!CPF || !/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(CPF))
     return {
       status: 400,
       error: "Invalid CPF format (must be XXX.XXX.XXX-XX)",
     };
-  if (requirePassword && (!password || password.trim() === ""))
-    return { status: 400, error: "Password is required" };
+  if (!password || !passwordRegex.test(password))
+    return {
+      status: 400,
+      error:
+        "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial",
+    };
   if (!type) return { status: 400, error: "Type is required" };
   return null;
 };
@@ -38,25 +38,19 @@ export const getAll = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserById = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
+export const getUserById = async (req: Request, res: Response) => {
   try {
-    const id = Number(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
-    const user = await UserModel.findByPk(id);
+    const user = await UserModel.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "User not found" });
-    return res.status(200).json(user);
+    res.status(200).json(user);
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error: " + error });
+    res.status(500).json({ error: "Internal server error: " + error });
   }
 };
 
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { name, email, CPF, password, type } = req.body;
-
     const validationError = validateUserFields(
       name,
       email,
@@ -83,19 +77,17 @@ export const updateUser = async (
   try {
     const user = await UserModel.findByPk(req.params.id);
     if (!user) return res.status(404).json({ error: "User not found" });
-
-    // Apenas o nome é obrigatório
     const { name, password } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: "Name is required" });
-    }
-
-    // Atualiza somente o nome; email, CPF e type permanecem os mesmos
+    if (!name) return res.status(400).json({ error: "Name is required" });
     user.name = name;
     if (password && password.trim() !== "") {
+      if (!passwordRegex.test(password))
+        return res.status(400).json({
+          error:
+            "A senha deve ter pelo menos 8 caracteres, uma letra maiúscula, um número e um caractere especial",
+        });
       user.password = password;
     }
-
     await user.save();
     res.status(200).json(user);
   } catch (error) {

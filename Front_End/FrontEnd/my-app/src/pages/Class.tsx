@@ -23,7 +23,6 @@ const Class: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchField, setSearchField] = useState("Nome do curso");
   const navigate = useNavigate();
-
   const classesPerPage = 12;
 
   const fetchClasses = async (
@@ -36,15 +35,25 @@ const Class: React.FC = () => {
       const response = await fetch(
         `http://localhost:3000/class?page=${page}&limit=${limit}&q=${encodeURIComponent(
           query
-        )}&field=${encodeURIComponent(field)}`
+        )}&field=${encodeURIComponent(field)}`,
+        { credentials: "include" }
       );
+      if (!response.ok) {
+        if (response.status === 401) {
+          navigate("/login");
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const result = await response.json();
-      if (result.data && result.total !== undefined) {
+      if (result.data && Array.isArray(result.data)) {
         setClasses(result.data);
         setTotalClasses(result.total);
-      } else {
+      } else if (Array.isArray(result)) {
         setClasses(result);
         setTotalClasses(result.length);
+      } else {
+        setClasses([]);
+        setTotalClasses(0);
       }
     } catch (error) {
       console.error("Erro ao buscar as classes:", error);
@@ -78,7 +87,6 @@ const Class: React.FC = () => {
 
   return (
     <div>
-      {/* Carrossel */}
       <div
         id="default-carousel"
         className="relative w-full"
@@ -101,7 +109,6 @@ const Class: React.FC = () => {
             </div>
           ))}
         </div>
-        {/* Indicadores do slider */}
         <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
           {classes.map((_, index) => (
             <button
@@ -116,7 +123,6 @@ const Class: React.FC = () => {
             ></button>
           ))}
         </div>
-        {/* Botão para slide anterior */}
         <button
           type="button"
           className="absolute top-1/2 left-5 z-30 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full"
@@ -128,7 +134,6 @@ const Class: React.FC = () => {
         >
           Anterior
         </button>
-        {/* Botão para próximo slide */}
         <button
           type="button"
           className="absolute top-1/2 right-5 z-30 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full"
@@ -142,12 +147,10 @@ const Class: React.FC = () => {
         </button>
       </div>
 
-      {/* Search Bar */}
       <div className="flex justify-center mt-6">
         <SearchBar options={searchOptions} onSearch={handleSearch} />
       </div>
 
-      {/* Seção de Classes com Paginação */}
       <div className="bg-white mt-8">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
           <h2 className="sr-only">Classes</h2>
@@ -173,7 +176,6 @@ const Class: React.FC = () => {
               </a>
             ))}
           </div>
-          {/* Componente de Paginação */}
           <Pagination
             currentPage={currentPageGrid}
             totalItems={totalClasses}

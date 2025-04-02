@@ -6,12 +6,15 @@ export const getAll = async (req: Request, res: Response) => {
   res.send(inscription);
 };
 
-export const getInscriptionById = async (
-  req: Request<{ id: number }>,
-  res: Response
-) => {
-  const inscription = await InscriptionModel.findByPk(req.params.id);
-  return res.json(inscription);
+export const getInscriptionById = async (req: Request, res: Response) => {
+  try {
+    const inscription = await InscriptionModel.findByPk(req.params.id);
+    if (!inscription)
+      return res.status(404).json({ error: "inscription not found" });
+    res.status(200).json(inscription);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error: " + error });
+  }
 };
 
 export const createInscription = async (req: Request, res: Response) => {

@@ -7,15 +7,16 @@ import {
   updateClass,
 } from "../controllers/ClassController";
 import { createLesson } from "../controllers/LessonController";
+import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.get("/class", getAll);
-router.get("/class/:id", getClassById);
-router.post("/class", createClass);
-router.put("/class/:id", updateClass);
-router.delete("/class/:id", destroyClassById);
+router.get("/class", authMiddleware, getAll);
+router.get("/class/:id", authMiddleware, getClassById);
+router.post("/class", authMiddleware, createClass);
+router.put("/class/:id", authMiddleware, updateClass);
+router.delete("/class/:id", authMiddleware, destroyClassById);
 
-router.post("/class/:classId/lessons", createLesson);
+router.post("/class/:classId/lessons", authMiddleware, createLesson);
 
 export default router;

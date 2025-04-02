@@ -6,12 +6,14 @@ export const getAll = async (req: Request, res: Response) => {
   res.send(payment);
 };
 
-export const getPaymentById = async (
-  req: Request<{ id: number }>,
-  res: Response
-) => {
-  const payment = await PaymentModel.findByPk(req.params.id);
-  return res.json(payment);
+export const getPaymentById = async (req: Request, res: Response) => {
+  try {
+    const payment = await PaymentModel.findByPk(req.params.id);
+    if (!payment) return res.status(404).json({ error: "User not found" });
+    res.status(200).json(payment);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error: " + error });
+  }
 };
 
 export const createPayment = async (req: Request, res: Response) => {

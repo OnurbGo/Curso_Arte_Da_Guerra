@@ -6,12 +6,15 @@ export const getAll = async (req: Request, res: Response) => {
   res.send(methodPayment);
 };
 
-export const getMethodPaymentById = async (
-  req: Request<{ id: number }>,
-  res: Response
-) => {
-  const methodPayment = await MethodPaymentModel.findByPk(req.params.id);
-  return res.json(methodPayment);
+export const getMethodPaymentById = async (req: Request, res: Response) => {
+  try {
+    const methodPayment = await MethodPaymentModel.findByPk(req.params.id);
+    if (!methodPayment)
+      return res.status(404).json({ error: "MethodPayment not found" });
+    res.status(200).json(methodPayment);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error: " + error });
+  }
 };
 
 export const createMethodPayment = async (req: Request, res: Response) => {
