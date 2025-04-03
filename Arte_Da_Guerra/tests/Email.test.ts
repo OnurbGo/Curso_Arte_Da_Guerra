@@ -34,4 +34,15 @@ describe("Email Validation", () => {
 
     expect(response.status).toBe(201);
   });
+  test("PUT should not update the email field if provided", async () => {
+    const response = await request(app).put("/users/1").send({
+      name: "Valid User",
+      email: "gurila@gmail.com",
+      password: "@Juju713",
+      CPF: "123.456.789-00",
+      type: "teacher",
+    });
+
+    expect(response.status).toBe(401);
+  });
 });
