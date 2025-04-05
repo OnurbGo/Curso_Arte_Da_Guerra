@@ -5,7 +5,7 @@ const Footer = () => {
         <div className="flex flex-row flex-wrap items-center justify-center gap-y-6 gap-x-12">
           &copy; 2025 Cybertech Evolution
           <ul className="flex flex-wrap items-center gap-y-2 gap-x-8">
-            <li className="hover:text-blue-500">
+            <li className="hover:text-red-500">
               <a href="">About Us</a>
             </li>
           </ul>

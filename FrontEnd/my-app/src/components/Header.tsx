@@ -55,7 +55,7 @@ const Header = () => {
               <span className="sr-only">Sua Empresa</span>
               <img
                 alt="Logo"
-                src="https://github.com/OnurbGo/Curso_Arte_Da_Guerra/blob/main/Front_End/FrontEnd/my-app/src/assets/Yin_and_Yang_symbol.png?raw=true"
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Yin_and_Yang_symbol.png"
                 className="h-8 w-auto"
               />
             </button>

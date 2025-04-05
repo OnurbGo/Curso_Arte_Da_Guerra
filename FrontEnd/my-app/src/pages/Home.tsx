@@ -81,7 +81,7 @@ export default function Home() {
             </div>
             <div className="w-1/2">
               <img
-                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/Front_End/FrontEnd/my-app/src/assets/Treinamento.webp"
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Treinamento.webp"
                 alt="Treinamento"
                 className="w-full h-full object-cover rounded-lg"
               />
@@ -95,7 +95,7 @@ export default function Home() {
           >
             <div className="w-1/2">
               <img
-                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/Front_End/FrontEnd/my-app/src/assets/Paisagem.webp"
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Paisagem.webp"
                 alt="Estilos de Lutas"
                 className="w-full h-full object-cover rounded-lg"
               />
@@ -126,7 +126,7 @@ export default function Home() {
             </div>
             <div className="w-1/2">
               <img
-                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/Front_End/FrontEnd/my-app/src/assets/Meditação.webp"
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Meditação.webp"
                 alt="Meditação"
                 className="w-full h-full object-cover rounded-lg"
               />
@@ -137,7 +137,7 @@ export default function Home() {
 
       {/* Seção Inferior: Escolher Plano */}
       <div className="mx-auto max-w-4xl text-center mt-16" data-aos="fade-up">
-        <h2 className="text-base font-semibold text-indigo-600">Planos</h2>
+        <h2 className="text-base font-semibold text-black-600">Planos</h2>
         <p className="mt-2 text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
           Escolha o plano ideal para você
         </p>
@@ -167,7 +167,7 @@ export default function Home() {
             <h3
               id={tier.id}
               className={classNames(
-                tier.featured ? "text-indigo-400" : "text-indigo-600",
+                tier.featured ? "text-red-400" : "text-red-600",
                 "text-base font-semibold"
               )}
             >
@@ -211,7 +211,7 @@ export default function Home() {
                   <CheckIcon
                     aria-hidden="true"
                     className={classNames(
-                      tier.featured ? "text-indigo-400" : "text-indigo-600",
+                      tier.featured ? "text-red-400" : "text-red-600",
                       "h-6 w-5 flex-none"
                     )}
                   />
@@ -224,8 +224,8 @@ export default function Home() {
               aria-describedby={tier.id}
               className={classNames(
                 tier.featured
-                  ? "bg-indigo-500 text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-indigo-500"
-                  : "text-indigo-600 ring-1 ring-indigo-200 ring-inset hover:ring-indigo-300 focus-visible:outline-indigo-600",
+                  ? "bg-red-500 text-white shadow-xs hover:bg-red-400 focus-visible:outline-red-500"
+                  : "text-red-600 ring-1 ring-red-200 ring-inset hover:ring-red-300 focus-visible:outline-red-600",
                 "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
               )}
             >
