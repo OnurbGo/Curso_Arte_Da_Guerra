@@ -32,6 +32,7 @@ interface Lesson {
 const MyCourses: React.FC = () => {
   const [classes, setClasses] = useState<Class[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [totalLessons, setTotalLessons] = useState<number>(0);
   const [teacherId, setTeacherId] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(
@@ -51,12 +52,12 @@ const MyCourses: React.FC = () => {
   >(null);
   const [selectedClassForLessonCreation, setSelectedClassForLessonCreation] =
     useState<number | null>(null);
-
   const [newLessonTitle, setNewLessonTitle] = useState("");
   const [newLessonDescription, setNewLessonDescription] = useState("");
   const [newLessonUrlVideo, setNewLessonUrlVideo] = useState("");
   const [newLessonUrlImg, setNewLessonUrlImg] = useState("");
 
+  // Estados para edição de cursos e lições
   const [editingCourseId, setEditingCourseId] = useState<number | null>(null);
   const [editCourseTitle, setEditCourseTitle] = useState("");
   const [editCourseDescription, setEditCourseDescription] = useState("");
@@ -69,8 +70,13 @@ const MyCourses: React.FC = () => {
   const [editLessonUrlVideo, setEditLessonUrlVideo] = useState("");
   const [editLessonUrlImg, setEditLessonUrlImg] = useState("");
 
+  // Estados de paginação para cursos (client-side)
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  // Estados de paginação para lições (server-side)
+  const [currentLessonPage, setCurrentLessonPage] = useState(1);
+  const lessonsPerPage = 5;
 
   useEffect(() => {
     const token = Cookies.get("authToken");
@@ -90,11 +96,10 @@ const MyCourses: React.FC = () => {
           .then((res) => {
             const teacherIdFromDB = res.data.id;
             setTeacherId(teacherIdFromDB);
-
             axios
               .get("http://localhost:3000/class", { withCredentials: true })
               .then((res) => {
-                let allClasses: Class[] = res.data.data
+                const allClasses: Class[] = res.data.data
                   ? res.data.data
                   : res.data;
                 const teacherClasses = allClasses.filter(
@@ -127,8 +132,6 @@ const MyCourses: React.FC = () => {
       url_img_banner: newClassBanner.trim(),
     };
 
-    console.log("Criando curso com os dados:", newClass);
-
     try {
       const res = await axios.post("http://localhost:3000/class", newClass, {
         withCredentials: true,
@@ -149,22 +152,23 @@ const MyCourses: React.FC = () => {
     }
   };
 
-  const handleViewLessons = async (classId: number) => {
-    if (selectedClassForLessons === classId) {
-      setSelectedClassForLessons(null);
-      setLessons([]);
-      return;
-    }
+  // Função para buscar lições do backend (server-side pagination)
+  const fetchLessons = async (classId: number, page: number, limit: number) => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/lessons?class_id=${classId}`,
+        `http://localhost:3000/lessons?class_id=${classId}&page=${page}&limit=${limit}`,
         { withCredentials: true }
       );
-      const fetchedLessons: Lesson[] = res.data.data ? res.data.data : res.data;
-      setLessons(fetchedLessons);
-      setSelectedClassForLessons(classId);
-      setSelectedClassForLessonCreation(null);
-      setMessage(null);
+      if (res.data.data && res.data.total !== undefined) {
+        setLessons(res.data.data);
+        setTotalLessons(res.data.total);
+      } else if (Array.isArray(res.data)) {
+        setLessons(res.data);
+        setTotalLessons(res.data.length);
+      } else {
+        setLessons([]);
+        setTotalLessons(0);
+      }
     } catch (error) {
       console.error("Erro ao buscar lições:", error);
       setMessage("Erro ao buscar lições");
@@ -172,6 +176,26 @@ const MyCourses: React.FC = () => {
       setMessageTab("lesson");
     }
   };
+
+  const handleViewLessons = async (classId: number) => {
+    if (selectedClassForLessons === classId) {
+      setSelectedClassForLessons(null);
+      setLessons([]);
+      setTotalLessons(0);
+      return;
+    }
+    setCurrentLessonPage(1);
+    setSelectedClassForLessons(classId);
+    setSelectedClassForLessonCreation(null);
+    setMessage(null);
+    await fetchLessons(classId, 1, lessonsPerPage);
+  };
+
+  useEffect(() => {
+    if (selectedClassForLessons) {
+      fetchLessons(selectedClassForLessons, currentLessonPage, lessonsPerPage);
+    }
+  }, [currentLessonPage, selectedClassForLessons]);
 
   const handleCreateLesson = async (
     e: React.FormEvent<HTMLFormElement>,
@@ -195,7 +219,7 @@ const MyCourses: React.FC = () => {
     };
 
     try {
-      const res = await axios.post(
+      await axios.post(
         `http://localhost:3000/class/${classId}/lessons`,
         newLesson,
         { withCredentials: true }
@@ -203,9 +227,7 @@ const MyCourses: React.FC = () => {
       setMessage("Lição criada com sucesso!");
       setMessageType("success");
       setMessageTab("lesson");
-      if (selectedClassForLessons === classId) {
-        setLessons([...lessons, res.data]);
-      }
+      fetchLessons(classId, currentLessonPage, lessonsPerPage);
       setNewLessonTitle("");
       setNewLessonDescription("");
       setNewLessonUrlVideo("");
@@ -223,10 +245,16 @@ const MyCourses: React.FC = () => {
       await axios.delete(`http://localhost:3000/lessons/${lessonId}`, {
         withCredentials: true,
       });
-      setLessons(lessons.filter((l) => l.id !== lessonId));
       setMessage("Lição deletada com sucesso!");
       setMessageType("success");
       setMessageTab("lesson");
+      if (selectedClassForLessons) {
+        fetchLessons(
+          selectedClassForLessons,
+          currentLessonPage,
+          lessonsPerPage
+        );
+      }
     } catch (error) {
       console.error("Erro ao deletar lição:", error);
       setMessage("Erro ao deletar lição");
@@ -330,18 +358,22 @@ const MyCourses: React.FC = () => {
         url_video: editLessonUrlVideo,
         url_img: editLessonUrlImg,
       };
-      const res = await axios.put(
+      await axios.put(
         `http://localhost:3000/lessons/${lessonId}`,
         updatedLesson,
         { withCredentials: true }
-      );
-      setLessons(
-        lessons.map((lesson) => (lesson.id === lessonId ? res.data : lesson))
       );
       setMessage("Lição atualizada com sucesso!");
       setMessageType("success");
       setMessageTab("lesson");
       handleCancelEditLesson();
+      if (selectedClassForLessons) {
+        fetchLessons(
+          selectedClassForLessons,
+          currentLessonPage,
+          lessonsPerPage
+        );
+      }
     } catch (error) {
       console.error("Erro ao atualizar lição:", error);
       setMessage("Erro ao atualizar lição");
@@ -350,6 +382,7 @@ const MyCourses: React.FC = () => {
     }
   };
 
+  // Paginação para cursos (client-side)
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentCourses = classes.slice(indexOfFirstItem, indexOfLastItem);
@@ -425,7 +458,7 @@ const MyCourses: React.FC = () => {
         </form>
       </section>
 
-      {/* Listagem de cursos criados com paginação */}
+      {/* Listagem de cursos com paginação (client-side) */}
       <section>
         <h2 className="text-2xl font-semibold mb-4 text-gray-700 text-center">
           Cursos Criados
@@ -552,111 +585,123 @@ const MyCourses: React.FC = () => {
                         Curso sem lições até o momento.
                       </p>
                     ) : (
-                      lessons.map((lesson) => (
-                        <div
-                          key={lesson.id}
-                          className="border p-4 mb-3 rounded-lg shadow-sm"
-                        >
-                          {editingLessonId === lesson.id ? (
-                            <form
-                              onSubmit={(e) =>
-                                handleSubmitEditLesson(e, lesson.id)
-                              }
-                            >
-                              <input
-                                type="text"
-                                placeholder="Título da Lição"
-                                value={editLessonTitle}
-                                onChange={(e) =>
-                                  setEditLessonTitle(e.target.value)
-                                }
-                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                              />
-                              <textarea
-                                placeholder="Descrição da Lição"
-                                value={editLessonDescription}
-                                onChange={(e) =>
-                                  setEditLessonDescription(e.target.value)
-                                }
-                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                              ></textarea>
-                              <input
-                                type="text"
-                                placeholder="URL do Vídeo"
-                                value={editLessonUrlVideo}
-                                onChange={(e) =>
-                                  setEditLessonUrlVideo(e.target.value)
-                                }
-                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                              />
-                              <input
-                                type="text"
-                                placeholder="URL da Imagem"
-                                value={editLessonUrlImg}
-                                onChange={(e) =>
-                                  setEditLessonUrlImg(e.target.value)
-                                }
-                                className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                              />
-                              <div className="flex justify-center space-x-4 mt-2">
-                                <button
-                                  type="submit"
-                                  className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
-                                >
-                                  Salvar Alterações
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={handleCancelEditLesson}
-                                  className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-                            </form>
-                          ) : (
-                            <div className="flex justify-between items-center">
-                              <div className="flex-1 overflow-hidden">
-                                <h4 className="text-lg font-bold text-gray-800 truncate">
-                                  {lesson.title}
-                                </h4>
-                                <p
-                                  className="text-gray-600 truncate"
-                                  title={lesson.description}
-                                >
-                                  {lesson.description}
-                                </p>
-                              </div>
-                              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                                <button
-                                  onClick={() => handleStartEditLesson(lesson)}
-                                  className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-300"
-                                >
-                                  Editar Lição
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteLesson(lesson.id)}
-                                  className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition duration-300"
-                                >
-                                  Excluir
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                          <a
-                            href={lesson.url_video}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 underline mt-2 inline-block"
+                      <>
+                        {lessons.map((lesson) => (
+                          <div
+                            key={lesson.id}
+                            className="border p-4 mb-3 rounded-lg shadow-sm"
                           >
-                            Assistir Vídeo
-                          </a>
-                        </div>
-                      ))
+                            {editingLessonId === lesson.id ? (
+                              <form
+                                onSubmit={(e) =>
+                                  handleSubmitEditLesson(e, lesson.id)
+                                }
+                              >
+                                <input
+                                  type="text"
+                                  placeholder="Título da Lição"
+                                  value={editLessonTitle}
+                                  onChange={(e) =>
+                                    setEditLessonTitle(e.target.value)
+                                  }
+                                  className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  required
+                                />
+                                <textarea
+                                  placeholder="Descrição da Lição"
+                                  value={editLessonDescription}
+                                  onChange={(e) =>
+                                    setEditLessonDescription(e.target.value)
+                                  }
+                                  className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  required
+                                ></textarea>
+                                <input
+                                  type="text"
+                                  placeholder="URL do Vídeo"
+                                  value={editLessonUrlVideo}
+                                  onChange={(e) =>
+                                    setEditLessonUrlVideo(e.target.value)
+                                  }
+                                  className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  required
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="URL da Imagem"
+                                  value={editLessonUrlImg}
+                                  onChange={(e) =>
+                                    setEditLessonUrlImg(e.target.value)
+                                  }
+                                  className="w-full border-2 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  required
+                                />
+                                <div className="flex justify-center space-x-4 mt-2">
+                                  <button
+                                    type="submit"
+                                    className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
+                                  >
+                                    Salvar Alterações
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleCancelEditLesson}
+                                    className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300"
+                                  >
+                                    Cancelar
+                                  </button>
+                                </div>
+                              </form>
+                            ) : (
+                              <div className="flex justify-between items-center">
+                                <div className="flex-1 overflow-hidden">
+                                  <h4 className="text-lg font-bold text-gray-800 truncate">
+                                    {lesson.title}
+                                  </h4>
+                                  <p
+                                    className="text-gray-600 truncate"
+                                    title={lesson.description}
+                                  >
+                                    {lesson.description}
+                                  </p>
+                                </div>
+                                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                  <button
+                                    onClick={() =>
+                                      handleStartEditLesson(lesson)
+                                    }
+                                    className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 transition duration-300"
+                                  >
+                                    Editar Lição
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteLesson(lesson.id)
+                                    }
+                                    className="bg-red-600 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition duration-300"
+                                  >
+                                    Excluir
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            <a
+                              href={lesson.url_video}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline mt-2 inline-block"
+                            >
+                              Assistir Vídeo
+                            </a>
+                          </div>
+                        ))}
+                        <Pagination
+                          currentPage={currentLessonPage}
+                          totalItems={totalLessons}
+                          itemsPerPage={lessonsPerPage}
+                          onPageChange={setCurrentLessonPage}
+                        />
+                      </>
                     )}
                   </div>
                 )}
@@ -718,7 +763,7 @@ const MyCourses: React.FC = () => {
               currentPage={currentPage}
               totalItems={classes.length}
               itemsPerPage={itemsPerPage}
-              onPageChange={(page) => setCurrentPage(page)}
+              onPageChange={setCurrentPage}
             />
           </>
         )}

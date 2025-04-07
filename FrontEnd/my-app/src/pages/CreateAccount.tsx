@@ -152,7 +152,7 @@ export default function RegisterUser() {
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
           alt="Arte Da Guerra"
-          src="https://github.com/OnurbGo/Curso_Arte_Da_Guerra/blob/main/Front_End/FrontEnd/my-app/src/assets/Yin_and_Yang_symbol.png?raw=true"
+          src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Yin_and_Yang_symbol.png"
           className="mx-auto h-10 w-auto"
         />
         <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">

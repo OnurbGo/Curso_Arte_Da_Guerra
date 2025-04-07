@@ -7,7 +7,7 @@ const tiers = [
   {
     name: "Estudante",
     id: "tier-student",
-    href: "/courses",
+    href: "", ///courses
     priceMonthly: "R$29",
     description:
       "O plano ideal para alunos que desejam aprender artes marciais, aprimorar técnicas e receber certificação.",
@@ -22,7 +22,7 @@ const tiers = [
   {
     name: "Professor",
     id: "tier-teacher",
-    href: "/teacher/dashboard",
+    href: "", ///teacher/dashboard
     priceMonthly: "R$99",
     description:
       "Para instrutores que querem compartilhar conhecimento, criar cursos e inspirar alunos com suas técnicas.",

@@ -45,7 +45,7 @@ const Header = () => {
 
   return (
     <div className="relative bg-white px-6 lg:px-8">
-      <header className="bg-white">
+      <header className="relative z-20">
         <nav
           aria-label="Global"
           className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
