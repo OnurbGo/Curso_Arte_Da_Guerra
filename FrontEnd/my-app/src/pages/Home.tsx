@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import "../css/home.css";
 import { CheckIcon } from "@heroicons/react/20/solid";
 
 const tiers = [
   {
     name: "Estudante",
     id: "tier-student",
-    href: "", ///courses
+    href: "/",
     priceMonthly: "R$29",
     description:
       "O plano ideal para alunos que desejam aprender artes marciais, aprimorar técnicas e receber certificação.",
@@ -22,7 +23,7 @@ const tiers = [
   {
     name: "Professor",
     id: "tier-teacher",
-    href: "", ///teacher/dashboard
+    href: "/",
     priceMonthly: "R$99",
     description:
       "Para instrutores que querem compartilhar conhecimento, criar cursos e inspirar alunos com suas técnicas.",
@@ -44,12 +45,17 @@ function classNames(...classes: string[]): string {
 
 export default function Home() {
   useEffect(() => {
-    AOS.init({ duration: 1000 });
+    AOS.init({
+      duration: 1000,
+      startEvent: "load",
+    });
+    window.addEventListener("load", AOS.refresh);
+    return () => window.removeEventListener("load", AOS.refresh);
   }, []);
 
   return (
-    <div className="relative isolate bg-white px-6 lg:px-8">
-      {/* Seção Superior: Imagens e Descrições */}
+    <div className="home-container">
+      {/* Seção de introdução */}
       <div className="mx-auto max-w-6xl py-12">
         <div className="text-center mb-12" data-aos="fade-up">
           <h1 className="text-5xl font-bold text-gray-900">
@@ -58,12 +64,11 @@ export default function Home() {
           <p className="mt-4 text-xl text-gray-600">
             Explore inúmeros estilos de luta, filosofias de vida
             transformadoras, técnicas derivadas de mestres antigos e a arte da
-            meditação, essencial para fortalecer a mente. Prepare-se para a
-            jornada de autodescoberta e evolução.
+            meditação, essencial para fortalecer a mente.
           </p>
         </div>
         <div className="space-y-12">
-          {/* Seção 1 */}
+          {/* Treinamento */}
           <div
             className="flex items-center justify-between"
             data-aos="fade-right"
@@ -72,11 +77,9 @@ export default function Home() {
               <h2 className="text-3xl font-semibold">Treinamento</h2>
               <p className="mt-4 text-lg text-gray-600">
                 Descubra técnicas avançadas e treine ao lado dos melhores
-                instrutores, que irão guiar você rumo à excelência. Como disse
-                Bruce Lee: "Eu não temo o homem que praticou 10.000 chutes uma
-                vez, mas o homem que praticou um chute 10.000 vezes." A
-                verdadeira maestria vem da prática constante e do aprendizado
-                contínuo.
+                instrutores. Como disse Bruce Lee: "Eu não temo o homem que
+                praticou 10.000 chutes uma vez, mas o homem que praticou um
+                chute 10.000 vezes."
               </p>
             </div>
             <div className="w-1/2">
@@ -88,7 +91,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Seção 2 */}
+          {/* Estilos de Luta */}
           <div
             className="flex items-center justify-between"
             data-aos="fade-left"
@@ -103,14 +106,13 @@ export default function Home() {
             <div className="w-1/2 pl-8">
               <h2 className="text-3xl font-semibold">Estilos de Lutas</h2>
               <p className="mt-4 text-lg text-gray-600">
-                Explore as diversas filosofias e estilos de combate que não
-                apenas aprimoram suas habilidades, mas também têm o poder de
-                transformar sua vida.
+                Explore filosofias de combate que aprimoram suas habilidades e
+                transformam sua vida.
               </p>
             </div>
           </div>
 
-          {/* Seção 3 */}
+          {/* Meditação */}
           <div
             className="flex items-center justify-between"
             data-aos="fade-right"
@@ -118,10 +120,8 @@ export default function Home() {
             <div className="w-1/2 pr-8">
               <h2 className="text-3xl font-semibold">Meditação</h2>
               <p className="mt-4 text-lg text-gray-600">
-                Encontre o equilíbrio através da meditação e da concentração,
-                fortalecendo sua mente e corpo em harmonia. Assim como um rio
-                turbulento impede uma visão clara, mas, ao se acalmar, revela
-                sua profundidade, uma mente serena permite enxergar com clareza.
+                Fortaleça sua mente através da meditação. Uma mente serena
+                permite enxergar com clareza.
               </p>
             </div>
             <div className="w-1/2">
@@ -135,9 +135,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Seção Inferior: Escolher Plano */}
+      {/* Seção de Planos */}
       <div className="mx-auto max-w-4xl text-center mt-16" data-aos="fade-up">
-        <h2 className="text-base font-semibold text-black-600">Planos</h2>
+        <h2 className="text-base font-semibold text-gray-600">Planos</h2>
         <p className="mt-2 text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
           Escolha o plano ideal para você
         </p>
@@ -146,22 +146,15 @@ export default function Home() {
         Selecione um plano para ensinar ou aprender artes marciais online.
       </p>
       <div
-        className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-2 lg:gap-x-0" // Removido gap-x no desktop
+        className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-2"
         data-aos="fade-up"
       >
-        {tiers.map((tier, tierIdx) => (
+        {tiers.map((tier) => (
           <div
             key={tier.id}
             className={classNames(
-              tier.featured
-                ? "relative bg-gray-900 shadow-2xl"
-                : "bg-white/60 sm:mx-8 lg:mx-0",
-              tier.featured
-                ? ""
-                : tierIdx === 0
-                ? "rounded-t-3xl sm:rounded-b-none lg:rounded-t-3xl lg:rounded-bl-3xl lg:rounded-br-3xl" // Garantido arredondamento para todas as bordas no Estudante
-                : "rounded-t-3xl sm:rounded-b-none lg:rounded-tr-3xl lg:rounded-bl-3xl lg:rounded-br-3xl", // Garantido arredondamento para todas as bordas no Professor
-              "rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10"
+              tier.featured ? "relative bg-gray-900 shadow-2xl" : "bg-white/60",
+              "rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10 transition-transform duration-300 hover:scale-105"
             )}
           >
             <h3
@@ -209,11 +202,11 @@ export default function Home() {
               {tier.features.map((feature) => (
                 <li key={feature} className="flex gap-x-3">
                   <CheckIcon
-                    aria-hidden="true"
                     className={classNames(
                       tier.featured ? "text-red-400" : "text-red-600",
                       "h-6 w-5 flex-none"
                     )}
+                    aria-hidden="true"
                   />
                   {feature}
                 </li>
@@ -224,9 +217,9 @@ export default function Home() {
               aria-describedby={tier.id}
               className={classNames(
                 tier.featured
-                  ? "bg-red-500 text-white shadow-xs hover:bg-red-400 focus-visible:outline-red-500"
-                  : "text-red-600 ring-1 ring-red-200 ring-inset hover:ring-red-300 focus-visible:outline-red-600",
-                "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
+                  ? "bg-red-500 text-white hover:bg-red-400"
+                  : "text-red-600 ring-1 ring-red-200 hover:ring-red-300",
+                "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2"
               )}
             >
               Escolher plano

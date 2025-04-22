@@ -1,19 +1,43 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Pagination from "../components/Pagination";
 import SearchBar from "../components/SearchBar";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { ClassItem } from "../Interfaces/interfaces";
 
-interface ClassItem {
-  id: number;
-  title: string;
-  description: string;
-  url_img: string;
-  url_img_banner: string;
-  teacherName?: string;
-  teacherSpecialization?: string;
+
+const truncateText = (text: string, maxChars: number): string => {
+  if (text.length <= maxChars) return text;
+  return text.substring(0, maxChars) + "…";
+};
+
+interface GridCardProps {
+  classItem: ClassItem;
+  onClick: (id: number) => void;
 }
+
+const GridCard: React.FC<GridCardProps> = ({ classItem, onClick }) => (
+  <button
+    key={classItem.id}
+    className="group cursor-pointer focus:outline-none"
+    onClick={() => onClick(classItem.id)}
+    data-aos="fade-up"
+  >
+    <img
+      alt={classItem.title}
+      src={classItem.url_img}
+      className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 transition"
+    />
+    <h3 className="mt-1 text-lg font-medium text-gray-900 text-center truncate w-full">
+      {classItem.title}
+    </h3>
+    <p className="mt-4 text-sm text-gray-900 text-justify px-2">
+      {truncateText(classItem.description, 100)}
+    </p>
+  </button>
+);
 
 const Class: React.FC = () => {
   const [classes, setClasses] = useState<ClassItem[]>([]);
@@ -25,40 +49,43 @@ const Class: React.FC = () => {
   const navigate = useNavigate();
   const classesPerPage = 12;
 
-  const fetchClasses = async (
-    page: number,
-    limit: number,
-    query = "",
-    field = "Nome do curso"
-  ) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/class?page=${page}&limit=${limit}&q=${encodeURIComponent(
-          query
-        )}&field=${encodeURIComponent(field)}`,
-        { credentials: "include" }
-      );
-      if (!response.ok) {
-        if (response.status === 401) {
-          navigate("/login");
+  const fetchClasses = useCallback(
+    async (
+      page: number,
+      limit: number,
+      query = "",
+      field = "Nome do curso"
+    ) => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/class?page=${page}&limit=${limit}&q=${encodeURIComponent(
+            query
+          )}&field=${encodeURIComponent(field)}`,
+          { credentials: "include" }
+        );
+        if (!response.ok) {
+          if (response.status === 401) {
+            navigate("/login");
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const result = await response.json();
+        if (result.data && Array.isArray(result.data)) {
+          setClasses(result.data);
+          setTotalClasses(result.total);
+        } else if (Array.isArray(result)) {
+          setClasses(result);
+          setTotalClasses(result.length);
+        } else {
+          setClasses([]);
+          setTotalClasses(0);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar as classes:", error);
       }
-      const result = await response.json();
-      if (result.data && Array.isArray(result.data)) {
-        setClasses(result.data);
-        setTotalClasses(result.total);
-      } else if (Array.isArray(result)) {
-        setClasses(result);
-        setTotalClasses(result.length);
-      } else {
-        setClasses([]);
-        setTotalClasses(0);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar as classes:", error);
-    }
-  };
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     setCurrentSlide(0);
@@ -71,7 +98,14 @@ const Class: React.FC = () => {
     return () => {
       AOS.refresh();
     };
-  }, [currentPageGrid, searchQuery, searchField]);
+  }, [currentPageGrid, searchQuery, searchField, fetchClasses]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === classes.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [classes]);
 
   const handleClassClick = (id: number) => {
     navigate(`/course/${id}`);
@@ -86,30 +120,36 @@ const Class: React.FC = () => {
   const searchOptions = ["Nome do curso", "Descrição do curso"];
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       <div
         id="default-carousel"
         className="relative w-full"
         data-carousel="slide"
       >
-        <div className="relative h-64 sm:h-80 md:h-96 lg:h-128 overflow-hidden rounded-lg">
+        <div className="relative h-64 sm:h-80 md:h-96 lg:h-[32rem] overflow-hidden">
           {classes.map((product, index) => (
             <div
-              key={index}
-              className={`duration-700 ease-in-out ${
-                index === currentSlide ? "block" : "hidden"
+              key={product.id}
+              className={`duration-700 ease-in-out transition-all absolute inset-0 ${
+                index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
               }`}
               data-carousel-item
             >
-              <img
-                src={product.url_img_banner}
-                alt={product.title}
-                className="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 rounded-none object-top"
-              />
+              <button
+                onClick={() => handleClassClick(product.id)}
+                className="w-full h-full"
+              >
+                <img
+                  src={product.url_img_banner}
+                  alt={product.title}
+                  className="w-full h-full object-cover"
+                />
+              </button>
             </div>
           ))}
         </div>
-        <div className="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
+
+        <div className="absolute z-30 flex justify-center w-full bottom-5 space-x-3">
           {classes.map((_, index) => (
             <button
               key={index}
@@ -123,27 +163,28 @@ const Class: React.FC = () => {
             ></button>
           ))}
         </div>
+
         <button
           type="button"
-          className="absolute top-1/2 left-5 z-30 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full"
+          className="absolute top-1/2 left-5 z-30 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full hover:bg-gray-800 transition"
           onClick={() =>
             setCurrentSlide((prev) =>
               prev === 0 ? classes.length - 1 : prev - 1
             )
           }
         >
-          Anterior
+          <FaArrowLeft size={20} />
         </button>
         <button
           type="button"
-          className="absolute top-1/2 right-5 z-30 transform -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full"
+          className="absolute top-1/2 right-5 z-30 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full hover:bg-gray-800 transition"
           onClick={() =>
             setCurrentSlide((prev) =>
               prev === classes.length - 1 ? 0 : prev + 1
             )
           }
         >
-          Próximo
+          <FaArrowRight size={20} />
         </button>
       </div>
 
@@ -152,28 +193,17 @@ const Class: React.FC = () => {
       </div>
 
       <div className="bg-white mt-8">
-        <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-          <h2 className="sr-only">Classes</h2>
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+          <h2 className="text-3xl font-bold text-center mb-8">
+            Todos os Cursos
+          </h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
             {classes.map((classItem) => (
-              <a
+              <GridCard
                 key={classItem.id}
-                className="group cursor-pointer"
-                onClick={() => handleClassClick(classItem.id)}
-                data-aos="fade-up"
-              >
-                <img
-                  alt={classItem.title}
-                  src={classItem.url_img}
-                  className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8"
-                />
-                <h3 className="mt-1 text-lg font-medium text-gray-900 text-center truncate w-full block">
-                  {classItem.title}
-                </h3>
-                <p className="mt-4 text-sm text-gray-900 text-center">
-                  {classItem.description}
-                </p>
-              </a>
+                classItem={classItem}
+                onClick={handleClassClick}
+              />
             ))}
           </div>
           <Pagination

@@ -1,11 +1,7 @@
 import { verifyToken } from "../utils/jwt";
 import { NextFunction, Request, Response } from "express";
 
-export const authMiddleware = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const tokenFromHeader = req.header("Authorization")?.replace("Bearer ", "");
   const tokenFromCookie = req.cookies?.authToken;
   const token = tokenFromHeader || tokenFromCookie;
@@ -16,11 +12,15 @@ export const authMiddleware = (
 
   try {
     const decoded: any = verifyToken(token);
-    (req as any).user = decoded;
+    // Normaliza payload para garantir que req.user.id exista
+    const userId = decoded.id ?? decoded.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Access denied. Invalid payload" });
+    }
+
+    (req as any).user = { id: userId };
     next();
   } catch (error) {
-    return res
-      .status(401)
-      .json({ msg: "Access denied. Invalid Token: " + error });
+    return res.status(401).json({ error: "Access denied. Invalid token" });
   }
 };

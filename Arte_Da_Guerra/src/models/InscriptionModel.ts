@@ -6,7 +6,6 @@ import ClassModel from "./ClassModel";
 class InscriptionModel extends Model {
   user_id: number | undefined;
   class_id: number | undefined;
-  status: Enumerator | undefined;
 }
 
 InscriptionModel.init(
@@ -32,10 +31,6 @@ InscriptionModel.init(
         key: "id",
       },
     },
-    status: {
-      type: DataTypes.ENUM("activated", "canceled", "done"),
-      allowNull: true,
-    },
   },
   {
     sequelize,
@@ -44,7 +39,7 @@ InscriptionModel.init(
   }
 );
 
-//colocar um as para definir o nome (as: "nome")
+// Definindo os relacionamentos
 InscriptionModel.belongsTo(UserModel, { foreignKey: "user_id" });
 UserModel.hasMany(InscriptionModel, { foreignKey: "user_id" });
 

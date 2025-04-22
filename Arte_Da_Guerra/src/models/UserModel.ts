@@ -9,9 +9,11 @@ export interface UserAttributes {
   CPF: string;
   password: string;
   type: "student" | "teacher";
+  url_img?: string;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
+interface UserCreationAttributes
+  extends Optional<UserAttributes, "id" | "url_img"> {}
 
 class UserModel
   extends Model<UserAttributes, UserCreationAttributes>
@@ -23,6 +25,7 @@ class UserModel
   public CPF!: string;
   public password!: string;
   public type!: "student" | "teacher";
+  public url_img?: string;
 
   public async hashPassword(): Promise<void> {
     if (this.password) {
@@ -67,6 +70,11 @@ UserModel.init(
     type: {
       type: DataTypes.ENUM("student", "teacher"),
       allowNull: true,
+    },
+    url_img: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
   },
   {

@@ -10,6 +10,7 @@ import LessonRoutes from "./routes/LessonRouter";
 import PaymentRoutes from "./routes/PaymentRouter";
 import InscriptionRoutes from "./routes/InscriptionRouter";
 import MethodPaymentRoutes from "./routes/MethodPaymentRouter";
+import LessonProgressRouter from "./routes/LessonProgressRouter";
 import LoginRoutes from "./routes/LoginRouter";
 import "./models/Association";
 
@@ -33,5 +34,6 @@ app.use(InscriptionRoutes);
 app.use(PaymentRoutes);
 app.use(MethodPaymentRoutes);
 app.use(LoginRoutes);
+app.use(LessonProgressRouter);
 
 export default app;

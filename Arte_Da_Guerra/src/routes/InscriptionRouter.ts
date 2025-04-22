@@ -1,15 +1,14 @@
 import express from "express";
 import {
-  createInscription,
-  destroyInscriptionById,
   getAll,
   getInscriptionById,
+  createInscription,
   updateInscription,
+  destroyInscriptionById,
 } from "../controllers/InscriptionController";
 import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = express.Router();
-
 router.get("/inscription", authMiddleware, getAll);
 router.get("/inscription/:id", authMiddleware, getInscriptionById);
 router.post("/inscription", authMiddleware, createInscription);

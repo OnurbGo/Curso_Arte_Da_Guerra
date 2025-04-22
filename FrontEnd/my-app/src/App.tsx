@@ -14,6 +14,7 @@ import PrivateRoute from "./utils/PrivateRoute";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import MyCourses from "./pages/MyCourses";
+import MyInscription from "./pages/MyInscription";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/lesson/:id" element={<Lesson />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/mycourses" element={<MyCourses />} />
+                <Route path="/myinscription" element={<MyInscription />} />
               </Route>
             </Routes>
           </main>

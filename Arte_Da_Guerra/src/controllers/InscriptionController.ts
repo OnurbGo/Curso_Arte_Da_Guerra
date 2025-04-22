@@ -2,97 +2,121 @@ import { Request, Response } from "express";
 import InscriptionModel from "../models/InscriptionModel";
 
 export const getAll = async (req: Request, res: Response) => {
-  const inscription = await InscriptionModel.findAll();
-  res.send(inscription);
+  try {
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    
+    const { class_id } = req.query;
+    let inscriptions;
+    if (class_id) {
+      const c = Number(class_id);
+      inscriptions = await InscriptionModel.findAll({
+        where: { user_id: user.id, class_id: c },
+      });
+    } else {
+      inscriptions = await InscriptionModel.findAll({
+        where: { user_id: user.id },
+      });
+    }
+    return res.json(inscriptions);
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json({ error: "Erro interno no servidor: " + err.message });
+  }
 };
 
 export const getInscriptionById = async (req: Request, res: Response) => {
   try {
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      return res.status(401).json({ error: "Usuário não autenticado" });
+    }
     const inscription = await InscriptionModel.findByPk(req.params.id);
-    if (!inscription)
-      return res.status(404).json({ error: "inscription not found" });
-    res.status(200).json(inscription);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error: " + error });
+    if (!inscription) {
+      return res.status(404).json({ error: "Inscription not found" });
+    }
+    if (inscription.user_id !== user.id) {
+      return res.status(403).json({ error: "Acesso negado" });
+    }
+    return res.json(inscription);
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json({ error: "Erro interno no servidor: " + err.message });
   }
 };
 
 export const createInscription = async (req: Request, res: Response) => {
   try {
-    const { user_id, class_id, status } = req.body;
-
-    if (!user_id || user_id === "") {
-      return res.status(400).json({ error: "User_id is Required" });
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      return res.status(401).json({ error: "Usuário não autenticado" });
     }
-
-    if (!class_id || class_id === "") {
-      return res.status(400).json({ error: "Class_id is Required" });
+    const { class_id } = req.body;
+    if (!class_id) {
+      return res.status(400).json({ error: "Class_id is required" });
     }
-
-    if (!status || status === "") {
-      return res.status(400).json({ error: "Status is Required" });
-    }
-
-    const inscription = await InscriptionModel.create({
-      user_id,
+    const newIns = await InscriptionModel.create({
+      user_id: user.id,
       class_id,
-      status,
     });
-    res.status(201).json(inscription);
-  } catch (error) {
-    res.status(500).json("Erro interno no Servidor: " + error);
+    return res.status(201).json(newIns);
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json({ error: "Erro interno no servidor: " + err.message });
   }
 };
 
-export const updateInscription = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
+export const updateInscription = async (req: Request, res: Response) => {
   try {
-    const { user_id, class_id, status } = req.body;
-
-    if (!user_id || user_id === "") {
-      return res.status(400).json({ error: "User_id is required" });
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      return res.status(401).json({ error: "Usuário não autenticado" });
     }
-
-    if (!class_id || class_id === "") {
-      return res.status(400).json({ error: "Class_id is Required" });
+    const { class_id } = req.body;
+    if (!class_id) {
+      return res.status(400).json({ error: "Class_id is required" });
     }
-
-    if (!status || status === "") {
-      return res.status(400).json({ error: "Status is required" });
+    const ins = await InscriptionModel.findByPk(req.params.id);
+    if (!ins) {
+      return res.status(404).json({ error: "Inscription not found" });
     }
+    if (ins.user_id !== user.id) {
+      return res.status(403).json({ error: "Acesso negado" });
+    }
+    ins.class_id = class_id;
+    await ins.save();
+    return res.json(ins);
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json({ error: "Erro interno no servidor: " + err.message });
+  }
+};
 
-    const inscription = await InscriptionModel.findByPk(req.params.id);
-    if (!inscription) {
+export const destroyInscriptionById = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      return res.status(401).json({ error: "Usuário não autenticado" });
+    }
+    const ins = await InscriptionModel.findByPk(req.params.id);
+    if (!ins) {
       return res.status(404).json({ error: "Inscription not found" });
     }
 
-    inscription.user_id = user_id;
-    inscription.class_id = class_id;
-    inscription.status = status;
-
-    await inscription.save();
-    res.status(201).json(inscription);
-  } catch (error) {
-    res.status(500).json("Erro interno no servidor " + error);
-  }
-};
-
-export const destroyInscriptionById = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
-  try {
-    const inscription = await InscriptionModel.findByPk(req.params.id);
-    if (!inscription) {
-      return res.status(404).json({ error: "User not found" });
+    if (ins.user_id !== user.id) {
+      return res.status(403).json({ error: "Acesso negado" });
     }
-
-    await inscription.destroy();
-
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json("Erro interno no servidor " + error);
+    await ins.destroy();
+    return res.status(204).send();
+  } catch (err: any) {
+    return res
+      .status(500)
+      .json({ error: "Erro interno no servidor: " + err.message });
   }
 };

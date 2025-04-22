@@ -1,5 +1,3 @@
-import React from "react";
-
 /*bg-gray-900*/
 
 const NotFound = () => {
