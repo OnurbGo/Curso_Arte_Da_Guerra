@@ -64,8 +64,6 @@ describe("User Endpoint", () => {
       type: "teacher",
     });
 
-    console.log(response.body);
-
     expect(response.status).toBe(403); // Deve retornar Forbidden
     expect(response.body.error).toBe("Acesso negado");
   });
