@@ -8,7 +8,7 @@ export const getAll = async (req: Request, res: Response) => {
   const limit = Number(req.query.limit) || 10;
   const offset = (page - 1) * limit;
   try {
-    let lessons; 
+    let lessons;
     if (class_id) {
       lessons = await LessonModel.findAndCountAll({
         where: { class_id: Number(class_id) },
@@ -61,10 +61,10 @@ export const getLessonsByClassId = async (
 
 export const createLesson = async (req: Request, res: Response) => {
   try {
-    const { classId } = req.params;
-    const { title, description, url_video, url_img } = req.body;
+    //const { classId } = req.params;
+    const { class_id, title, description, url_video, url_img } = req.body;
 
-    const classExist = await ClassModel.findByPk(classId);
+    const classExist = await ClassModel.findByPk(class_id);
     if (!classExist) {
       return res.status(404).json({ error: "Class not found" });
     }
@@ -83,7 +83,7 @@ export const createLesson = async (req: Request, res: Response) => {
     }
 
     const lesson = await LessonModel.create({
-      class_id: classId,
+      class_id,
       title,
       description,
       url_video,

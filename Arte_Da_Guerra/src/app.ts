@@ -16,12 +16,9 @@ import "./models/Association";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
+const FRONT_URL = process.env.FRONT_URL;
+
+app.use(cors());
 
 app.use(cookieParser());
 app.use(express.json());

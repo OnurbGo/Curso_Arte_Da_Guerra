@@ -21,7 +21,6 @@ describe("User Controller - Password Validation", () => {
       password: "Senha@123",
       type: "student",
     });
-    console.log(response.body);
 
     expect(response.status).toBe(201);
   });

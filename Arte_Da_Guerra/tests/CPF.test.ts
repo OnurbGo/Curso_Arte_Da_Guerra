@@ -21,8 +21,8 @@ describe("User CPF Validation", () => {
 
   test("CPF with formatting", async () => {
     const response = await request(app).post("/users").send({
-      name: "Invalid User",
-      email: "mail@example.com",
+      name: "Carlinhos",
+      email: "gustavo@example.com",
       password: "@Juju713",
       CPF: "009.876.543-21",
       type: "student",
@@ -45,8 +45,8 @@ describe("User CPF Validation", () => {
 
   test("CPF is empty", async () => {
     const response = await request(app).post("/users").send({
-      name: "Invalid User",
-      email: "mail@example.com",
+      name: "Luan Santana",
+      email: "mail@godmail.com",
       password: "@Juju713",
       CPF: "",
       type: "student",
@@ -57,8 +57,8 @@ describe("User CPF Validation", () => {
 
   test("CPF already exists", async () => {
     const response = await request(app).post("/users").send({
-      name: "Invalid User",
-      email: "mail@example.com",
+      name: "Lionel Messi",
+      email: "lionelmessi@example.com",
       password: "@Juju713",
       CPF: "123.456.789-00",
       type: "student",

@@ -7,8 +7,10 @@ jest.mock("../src/middleware/authMiddleware", () => {
   return {
     authMiddleware: (req: any, res: any, next: any) => {
       req.body.user = {
-        email: "qualquer",
-        password: "1234",
+        name: "Gustavo Lima",
+        email: "qualquer@exemplo.com",
+        password: "@senhaBolada714",
+        CPF: "000.000.000-00",
       };
 
       next();

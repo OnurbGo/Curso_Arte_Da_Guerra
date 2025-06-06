@@ -7,9 +7,11 @@ import UserModel from "../src/models/UserModel";
 jest.mock("../src/middleware/authMiddleware", () => {
   return {
     authMiddleware: (req: any, res: any, next: any) => {
-      req.body.teacher = {
-        email: "qualquer",
-        password: "1234",
+      req.body.user = {
+        name: "Gustavo Lima",
+        email: "qualquer@exemplo.com",
+        password: "@senhaBolada714",
+        CPF: "000.000.000-00",
       };
 
       next();
