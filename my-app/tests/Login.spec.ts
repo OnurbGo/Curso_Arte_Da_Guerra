@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("Teste", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://cursosartedaguerra.com.br");
 
   //verificar se isso aqui funciona
   const title = page.getByText("Aprenda a Arte da Guerra");
@@ -21,29 +21,30 @@ test("Teste", async ({ page }) => {
 
 
 test("Login que não existe", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://cursosartedaguerra.com.br");
   
   await page.getByRole("button", { name: "Log In" }).click();
 
-  await page.getByLabel("Email").fill("Akuma@godmail.com");
+  await page.getByLabel("Email").fill("Akuma@gmail.com");
   await page.getByLabel("Senha").fill("@ShunGokusatsu712");
 
   await page.getByRole("button", { name: "Login" }).click();
 
-  //mostrar que aparece o erro
+  const erroLogin = page.getByText("Erro ao fazer login");
+  expect(erroLogin).toBeTruthy();
 });
 
 //CRIAÇÃO/LOGIN DE PROFESSOR
 
-test("Criando Conta professor", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+test("Criando Conta professor e logando com sucesso", async ({ page }) => {
+  await page.goto("https://cursosartedaguerra.com.br");
   
   await page.getByRole("button", { name: "Log In" }).click();
   await page.getByText("Crie Sua Conta Aqui").click();
 
   await page.getByLabel("Nome").fill("Akuma da Silva");
-  await page.getByLabel("Email").fill("Akuma@godmail.com");
-  await page.getByLabel("CPF").fill("079.031.159-36"); 
+  await page.getByLabel("Email").fill("Akuma@gmail.com");
+  await page.getByLabel("CPF").fill("843.886.040-03"); 
   await page.getByLabel("Tipo").selectOption("teacher");
   await page.getByLabel("Biografia").fill("Eu era um pródigio da arte de chutar idosas, com o tempo aperfeiçoei minha tecnica");
   await page.getByLabel("Especialidade").fill("Chutador de Idosas");
@@ -51,66 +52,99 @@ test("Criando Conta professor", async ({ page }) => {
   await page.getByTestId("confirmPassword").fill("@ShunGokusatsu712");
 
   await page.getByRole("button", { name: "Cadastrar" }).click();
-});
 
-test("Login professor falhando", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
-  
-  await page.getByRole("button", { name: "Log In" }).click();
+  const cadastroSucesso = page.getByText("Usuário cadastrado com sucesso!");
+  expect(cadastroSucesso).toBeTruthy();
 
-  await page.getByLabel("Email").fill("Akuma@godmail.com");
-  await page.getByLabel("Senha").fill("@Shoriuken712");
+  await page.getByText("Faça Login aqui").click();
 
-  await page.getByRole("button", { name: "Login" }).click();
-});
-
-test("Login professor funcionando corretamente", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
-  
-  await page.getByRole("button", { name: "Log In" }).click();
-
-  await page.getByLabel("Email").fill("Akuma@godmail.com");
+  await page.getByLabel("Email").fill("Akuma@gmail.com");
   await page.getByLabel("Senha").fill("@ShunGokusatsu712");
 
   await page.getByRole("button", { name: "Login" }).click();
 });
 
+test("Criando conta e Login professor falhando", async ({ page }) => {
+  await page.goto("https://cursosartedaguerra.com.br");
+  
+  await page.getByRole("button", { name: "Log In" }).click();
+  await page.getByText("Crie Sua Conta Aqui").click();
+
+  await page.getByLabel("Nome").fill("Akuma da Silva");
+  await page.getByLabel("Email").fill("Akuma@gmail.com");
+  await page.getByLabel("CPF").fill("843.886.040-03"); 
+  await page.getByLabel("Tipo").selectOption("teacher");
+  await page.getByLabel("Biografia").fill("Eu era um pródigio da arte de chutar idosas, com o tempo aperfeiçoei minha tecnica");
+  await page.getByLabel("Especialidade").fill("Chutador de Idosas");
+  await page.getByTestId("password").fill("@ShunGokusatsu712");
+  await page.getByTestId("confirmPassword").fill("@ShunGokusatsu712");
+
+  await page.getByRole("button", { name: "Cadastrar" }).click();
+  
+  const cadastroSucesso = page.getByText("Usuário cadastrado com sucesso!");
+  expect(cadastroSucesso).toBeTruthy();
+
+  await page.getByText("Faça Login aqui").click();
+
+  await page.getByLabel("Email").fill("Akuma@gmail.com");
+  await page.getByLabel("Senha").fill("@Shoriuken712");
+
+  await page.getByRole("button", { name: "Login" }).click();
+  
+  const erroLogin = page.getByText("Erro ao fazer login");
+  expect(erroLogin).toBeTruthy();
+});
+
 //CRIAÇÃO/LOGIN DE ALUNO
 
 test("Criando Conta aluno", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://cursosartedaguerra.com.br");
   
   await page.getByRole("button", { name: "Log In" }).click();
   await page.getByText("Crie Sua Conta Aqui").click();
 
   await page.getByLabel("Nome").fill("Carlos");
-  await page.getByLabel("Email").fill("carlos@gojomail.com");
+  await page.getByLabel("Email").fill("carlos@gmail.com");
   await page.getByLabel("CPF").fill("092.200.321-90"); 
   await page.getByLabel("Tipo").selectOption("student");
   await page.getByTestId("password").fill("@Paulo327");
   await page.getByTestId("confirmPassword").fill("@Paulo327");
 
   await page.getByRole("button", { name: "Cadastrar" }).click();
-});
 
-test("Login Aluno falhando", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
-  
-  await page.getByRole("button", { name: "Log In" }).click();
+  const cadastroSucesso = page.getByText("Usuário cadastrado com sucesso!");
+  expect(cadastroSucesso).toBeTruthy();
 
-  await page.getByLabel("Email").fill("carlos@gojomail.com");
-  await page.getByLabel("Senha").fill("@Chavier327");
+  await page.getByText("Faça Login aqui").click();
+
+  await page.getByLabel("Email").fill("carlos@gmail.com");
+  await page.getByLabel("Senha").fill("@Paulo327");
 
   await page.getByRole("button", { name: "Login" }).click();
 });
 
-test("Login Aluno funcionando corretamente", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+test("Login Aluno falhando", async ({ page }) => {
+  await page.goto("https://cursosartedaguerra.com.br");
   
   await page.getByRole("button", { name: "Log In" }).click();
+  await page.getByText("Crie Sua Conta Aqui").click();
 
-  await page.getByLabel("Email").fill("carlos@gojomail.com");
-  await page.getByLabel("Senha").fill("@Paulo327");
+  await page.getByLabel("Nome").fill("Carlos");
+  await page.getByLabel("Email").fill("carlos@gmail.com");
+  await page.getByLabel("CPF").fill("092.200.321-90"); 
+  await page.getByLabel("Tipo").selectOption("student");
+  await page.getByTestId("password").fill("@Paulo327");
+  await page.getByTestId("confirmPassword").fill("@Paulo327");
+
+  await page.getByRole("button", { name: "Cadastrar" }).click();
+
+  const cadastroSucesso = page.getByText("Usuário cadastrado com sucesso!");
+  expect(cadastroSucesso).toBeTruthy();
+
+  await page.getByText("Faça Login aqui").click();
+
+  await page.getByLabel("Email").fill("carlos@gmail.com");
+  await page.getByLabel("Senha").fill("@Chavier327");
 
   await page.getByRole("button", { name: "Login" }).click();
 });
