@@ -175,7 +175,7 @@ const Profile: React.FC = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="min-h-screen bg-gray-50 py-10">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -212,10 +212,11 @@ const Profile: React.FC = () => {
         <div className="p-6 space-y-8">
           <form onSubmit={handleUserSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-1">
                 Nome
               </label>
               <input
+                id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -225,11 +226,12 @@ const Profile: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-600 mb-1">
                 Senha
               </label>
               <div className="relative">
                 <input
+                  id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => {
@@ -262,11 +264,12 @@ const Profile: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-600 mb-1">
                 Confirmar Senha
               </label>
               <div className="relative">
                 <input
+                  id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -302,10 +305,11 @@ const Profile: React.FC = () => {
               className="space-y-5 pt-8 border-t border-gray-200"
             >
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
+                <label htmlFor="biography" className="block text-sm font-medium text-gray-600 mb-1">
                   Biografia
                 </label>
                 <textarea
+                  id="biography"
                   value={biography}
                   onChange={(e) => setBiography(e.target.value)}
                   required
@@ -315,10 +319,11 @@ const Profile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
+                <label htmlFor="expertise" className="block text-sm font-medium text-gray-600 mb-1">
                   Especialização
                 </label>
                 <input
+                  id="expertise"
                   type="text"
                   value={expertise}
                   onChange={(e) => setExpertise(e.target.value)}
