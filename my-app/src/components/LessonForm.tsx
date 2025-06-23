@@ -73,6 +73,7 @@ const LessonForm: React.FC<LessonFormProps> = ({
         required
       />
       <input
+        id="url_video"
         type="text"
         placeholder="URL do Vídeo"
         value={localVideo}
@@ -84,6 +85,7 @@ const LessonForm: React.FC<LessonFormProps> = ({
         required
       />
       <input
+        id="url_img"
         type="text"
         placeholder="URL da Imagem"
         value={localImg}
