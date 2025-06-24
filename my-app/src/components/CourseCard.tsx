@@ -355,6 +355,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                   </a>
                   <div className="flex flex-wrap justify-center gap-2 mt-4">
                     <button
+                      id="edit_lesson"
                       onClick={() =>
                         editingLessonId === lesson.id
                           ? handleCancelEditLesson()
@@ -368,6 +369,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                         : "Editar"}
                     </button>
                     <button
+                      id="delete_lesson"
                       onClick={() => onDeleteLesson(lesson.id)}
                       className="px-2 py-1 sm:px-4 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 transition flex items-center justify-center"
                     >
