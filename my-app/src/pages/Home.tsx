@@ -84,7 +84,7 @@ export default function Home() {
             </div>
             <div className="w-1/2">
               <img
-                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Treinamento.webp"
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/my-app/src/assets/Treinamento.webp"
                 alt="Treinamento"
                 className="w-full h-full object-cover rounded-lg"
               />
@@ -98,7 +98,7 @@ export default function Home() {
           >
             <div className="w-1/2">
               <img
-                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Paisagem.webp"
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/my-app/src/assets/Paisagem.webp"
                 alt="Estilos de Lutas"
                 className="w-full h-full object-cover rounded-lg"
               />
@@ -126,7 +126,7 @@ export default function Home() {
             </div>
             <div className="w-1/2">
               <img
-                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/FrontEnd/my-app/src/assets/Meditação.webp"
+                src="https://raw.githubusercontent.com/OnurbGo/Curso_Arte_Da_Guerra/refs/heads/main/my-app/src/assets/Meditação.webp"
                 alt="Meditação"
                 className="w-full h-full object-cover rounded-lg"
               />

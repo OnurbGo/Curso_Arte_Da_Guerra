@@ -131,6 +131,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
           className="space-y-4 mb-6 w-full max-w-lg mx-auto"
         >
           <input
+            id="title_curse"
             type="text"
             value={editTitle}
             onChange={(e) => onChangeEditField("title", e.target.value)}
@@ -139,6 +140,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             required
           />
           <textarea
+            id="description_curse"
             value={editDescription}
             onChange={(e) => onChangeEditField("description", e.target.value)}
             className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -146,6 +148,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             required
           />
           <input
+            id="url_img"
             type="text"
             value={editImg}
             onChange={(e) => onChangeEditField("img", e.target.value)}
@@ -154,6 +157,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             required
           />
           <input
+            id="url_banner"
             type="text"
             value={editBanner}
             onChange={(e) => onChangeEditField("banner", e.target.value)}
@@ -282,6 +286,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                     required
                   />
                   <input
+                    id="url_video"
                     type="text"
                     value={editLessonData.url_video}
                     onChange={(e) =>
@@ -295,6 +300,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                     required
                   />
                   <input
+                    id="url_img"
                     type="text"
                     value={editLessonData.url_img}
                     onChange={(e) =>
@@ -349,6 +355,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                   </a>
                   <div className="flex flex-wrap justify-center gap-2 mt-4">
                     <button
+                      id="edit_lesson"
                       onClick={() =>
                         editingLessonId === lesson.id
                           ? handleCancelEditLesson()
@@ -362,6 +369,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                         : "Editar"}
                     </button>
                     <button
+                      id="delete_lesson"
                       onClick={() => onDeleteLesson(lesson.id)}
                       className="px-2 py-1 sm:px-4 sm:py-2 bg-red-500 text-white rounded hover:bg-red-600 transition flex items-center justify-center"
                     >
